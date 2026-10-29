@@ -1,8 +1,8 @@
 import unittest
 
-from world.retrieval.corpus import load_corpus
-from world.retrieval.cross_check import cross_check
-from world.retrieval.keyword_search import search_documents
+from retrieval.corpus import load_corpus
+from retrieval.cross_check import cross_check
+from retrieval.keyword_search import search_documents
 
 
 class TestOkuribiRetrieval(unittest.TestCase):
