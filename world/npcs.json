@@ -1,0 +1,102 @@
+[
+    {
+        "id": "NPC_MIZUKI",
+        "name": "Mizuki Sato",
+        "role": "Student council president",
+        "is_suspect": true,
+        "public_persona": "Composed, polite, precise, and uncomfortable with questions about the festival.",
+        "motive": "She fears that admitting she helped move the register will expose the council's role in the cover-up.",
+        "secret": "She saw smoke coming from the archive annex and helped carry a scorched register into the council room. An adult told her Aoi had escaped.",
+        "knows": [
+            "The festival was scheduled for September 21.",
+            "The archive annex was closed after the fire.",
+            "The register was physically damaged."
+        ],
+        "does_not_know": [
+            "The exact circumstances of Aoi's death.",
+            "Who changed every digital record.",
+            "The correct ritual offering."
+        ],
+        "dialogue_style": "Short, careful answers; deflects with procedural language before showing guilt.",
+        "allowed_clue_ids": [
+            "CLUE_01",
+            "CLUE_04"
+        ],
+        "deja_vu_line": "Have we had this conversation before? No. Forget I asked."
+    },
+    {
+        "id": "NPC_REN",
+        "name": "Ren Takeda",
+        "role": "Computer club member",
+        "is_suspect": true,
+        "public_persona": "Sarcastic, sleep-deprived, defensive about the school archive terminal.",
+        "motive": "He fears expulsion and public blame for changing the student database.",
+        "secret": "He changed Aoi's status to 'transferred' after a staff member threatened his scholarship. He did not know she had died when he made the change.",
+        "knows": [
+            "The database's transfer entry was edited after the listed transfer date.",
+            "A commit appeared under an account that should have been disabled.",
+            "The archive history has gaps."
+        ],
+        "does_not_know": [
+            "Who first ordered the cover-up.",
+            "What happened inside the archive annex.",
+            "Why the curse repeats."
+        ],
+        "dialogue_style": "Dry humor, technical metaphors, quick denial followed by reluctant precision.",
+        "allowed_clue_ids": [
+            "CLUE_02",
+            "CLUE_07"
+        ],
+        "deja_vu_line": "I swear I already debugged this conversation."
+    },
+    {
+        "id": "NPC_HARU",
+        "name": "Haru Nishimura",
+        "role": "Bell-ringer and track club runner",
+        "is_suspect": true,
+        "public_persona": "Quiet, observant, avoids eye contact whenever the old bell is mentioned.",
+        "motive": "He believes the bell's missing clapper makes him look responsible for the curse.",
+        "secret": "Aoi asked him to remove the bell clapper before the festival so she could use it during a memorial. He hid it in the equipment shed after the fire.",
+        "knows": [
+            "Aoi was preparing something for the festival.",
+            "The bell clapper was removed before the fire.",
+            "The school wanted the festival to continue despite the incident."
+        ],
+        "does_not_know": [
+            "That Aoi died in the archive annex.",
+            "Why Aoi wanted the register restored.",
+            "The ritual's exact requirements."
+        ],
+        "dialogue_style": "Few words, sensory details, long pauses, honest when asked a precise question.",
+        "allowed_clue_ids": [
+            "CLUE_03",
+            "CLUE_08"
+        ],
+        "deja_vu_line": "The bell sounds wrong again. It always sounds wrong here."
+    },
+    {
+        "id": "NPC_SAE",
+        "name": "Sae Fujimoto",
+        "role": "Library aide and scholarship student",
+        "is_suspect": true,
+        "public_persona": "Helpful, gentle, remembers small details, but avoids direct accusations.",
+        "motive": "She fears losing her scholarship and hurting her family if the school's cover-up becomes public.",
+        "secret": "She found Aoi's name in the paper register after the fire and stayed silent. She kept a copy of one page hidden inside a festival program.",
+        "knows": [
+            "Aoi's name was present in the paper register after the fire.",
+            "A later archive copy omitted that name.",
+            "The memorial lantern was never released onto the river."
+        ],
+        "does_not_know": [
+            "Who altered the digital history first.",
+            "Whether Mizuki knew Aoi was trapped.",
+            "The exact supernatural mechanism."
+        ],
+        "dialogue_style": "Warm and specific, offers mundane details that later become important.",
+        "allowed_clue_ids": [
+            "CLUE_05",
+            "CLUE_06"
+        ],
+        "deja_vu_line": "I kept a page. I don't remember why, but I knew I would need it."
+    }
+]

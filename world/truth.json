@@ -1,0 +1,56 @@
+{
+    "spoiler_warning": "SERVER-SIDE ONLY. Never include this object in player-facing prompts or UI.",
+    "true_dead_student": "STU_07",
+    "true_dead_student_name": "Aoi Kisaragi",
+    "actual_timeline": [
+        {
+            "date": "2019-09-18",
+            "event": "Aoi Kisaragi discovers that the school plans to erase a student who died in an accident during the lantern festival."
+        },
+        {
+            "date": "2019-09-21",
+            "event": "Aoi enters the sealed archive to restore the student's name to the register."
+        },
+        {
+            "date": "2019-09-21",
+            "event": "A short circuit starts a fire in the archive annex. Aoi dies while saving the original register from being destroyed."
+        },
+        {
+            "date": "2019-09-22",
+            "event": "Four students and one staff member agree to conceal the death because the school had already falsified its safety report."
+        },
+        {
+            "date": "2019-10-31",
+            "event": "The Seventh Name curse begins repeating. The archive's records and the school's collective memory are rewritten."
+        }
+    ],
+    "actual_cause": "Aoi Kisaragi died in the archive annex fire while trying to restore the erased student's name. The curse is sustained by the school's deliberate erasure of Aoi and by the survivors' refusal to acknowledge their role in the cover-up.",
+    "cover_up": "The school's archive system was deliberately altered after Aoi's death. Several students contributed for different reasons, but none of the four suspects alone created the curse. The supernatural effect grew from the collective lie.",
+    "twist_reveals": [
+        "The supposed 'Seventh Name' is not a name that causes a new death; it is the name of the person the school has already erased.",
+        "The person listed as transferred away was actually Aoi Kisaragi.",
+        "The most suspicious suspect, Ren, altered a record but did so to hide evidence of the fire, not to cause Aoi's death.",
+        "The school bell's missing clapper was removed by Aoi before the fire; it was meant to be used to call everyone to witness the restored register.",
+        "The loop does not punish the player for guessing incorrectly in a moral sense; each failed ritual repeats the school's refusal to remember."
+    ],
+    "ritual_solution": {
+        "student_id": "STU_07",
+        "student_name": "Aoi Kisaragi",
+        "offering_id": "OFFERING_PAPER_LANTERN",
+        "reason": "The lantern was the light Aoi prepared for the memorial procession. Naming Aoi and lighting the lantern publicly acknowledges the erased death instead of trying to rewrite the archive again."
+    },
+    "forged_documents": [
+        "DOC_02",
+        "DOC_06"
+    ],
+    "misleading_but_not_forged_documents": [
+        "DOC_03",
+        "DOC_05"
+    ],
+    "npc_secret_map": {
+        "NPC_MIZUKI": "She saw the archive smoke and helped move the damaged register, but was told Aoi had escaped.",
+        "NPC_REN": "He altered a digital record after being threatened with expulsion; he knows the date was changed but not the full truth.",
+        "NPC_HARU": "He removed the bell clapper at Aoi's request before the fire and kept it hidden, believing it was part of a harmless memorial.",
+        "NPC_SAE": "She found Aoi's name in a paper register after the fire and chose not to report it because her family depended on the school's scholarship."
+    }
+}

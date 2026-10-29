@@ -1,0 +1,106 @@
+[
+    {
+        "id": "DOC_01",
+        "title": "Lantern Festival Announcement",
+        "type": "newspaper_clipping",
+        "date": "2019-09-18",
+        "author": "Hanamori Student Press",
+        "reliability": "high_for_publication_date",
+        "forged": false,
+        "text": "The Lantern Festival will take place on September 21. Printed on September 18. A later handwritten note in the margin reads: 'Why does everyone remember the eighteenth?'",
+        "clue_ids": [
+            "CLUE_01"
+        ]
+    },
+    {
+        "id": "DOC_02",
+        "title": "Student Status Export",
+        "type": "student_database_export",
+        "date": "2019-09-18",
+        "author": "School archive terminal",
+        "reliability": "low",
+        "forged": true,
+        "text": "Aoi Kisaragi \u00e2\u20ac\u201d status: transferred. Effective date: September 18. The record contains a timestamp mismatch and an unexplained administrator override.",
+        "clue_ids": [
+            "CLUE_02"
+        ]
+    },
+    {
+        "id": "DOC_03",
+        "title": "Equipment Checkout Log",
+        "type": "equipment_log",
+        "date": "2019-09-20",
+        "author": "Facilities office",
+        "reliability": "moderate",
+        "forged": false,
+        "text": "One bell clapper checked out by Haru Nishimura. Return field blank. A note says: 'For the procession, as requested.'",
+        "clue_ids": [
+            "CLUE_03"
+        ]
+    },
+    {
+        "id": "DOC_04",
+        "title": "Archive Annex Incident Note",
+        "type": "incident_note",
+        "date": "2019-09-22",
+        "author": "Unsigned staff memo",
+        "reliability": "low",
+        "forged": false,
+        "text": "A small electrical incident occurred in the archive annex. No student injuries are listed. The phrase 'all personnel accounted for' has been written over an erased line.",
+        "clue_ids": [
+            "CLUE_04"
+        ]
+    },
+    {
+        "id": "DOC_05",
+        "title": "Enrollment Register Fragment",
+        "type": "paper_register_fragment",
+        "date": "2019-09-21",
+        "author": "Original paper register",
+        "reliability": "high",
+        "forged": false,
+        "text": "The surviving page lists Aoi Kisaragi as enrolled. The page was folded inside a festival program and bears soot along one edge.",
+        "clue_ids": [
+            "CLUE_05"
+        ]
+    },
+    {
+        "id": "DOC_06",
+        "title": "Festival Inventory Summary",
+        "type": "festival_inventory",
+        "date": "2019-09-23",
+        "author": "Festival committee",
+        "reliability": "low",
+        "forged": true,
+        "text": "All memorial lanterns were released into the river on the night of the festival. A later-added line states that every planned memorial was completed without interruption.",
+        "clue_ids": [
+            "CLUE_06"
+        ]
+    },
+    {
+        "id": "DOC_07",
+        "title": "Archive Git Audit",
+        "type": "git_audit_log",
+        "date": "2019-09-22",
+        "author": "Archive terminal",
+        "reliability": "moderate",
+        "forged": false,
+        "text": "The student-status commit is displayed as September 18, but its parent commit was created on September 22. The commit message changes each time the file is opened.",
+        "clue_ids": [
+            "CLUE_07"
+        ]
+    },
+    {
+        "id": "DOC_08",
+        "title": "Charred Register Note",
+        "type": "charred_register",
+        "date": "2019-09-21",
+        "author": "Aoi Kisaragi",
+        "reliability": "high",
+        "forged": false,
+        "text": "A soot-marked fragment reads: 'Light one for the name we failed to speak.' The bottom edge contains Aoi Kisaragi's signature.",
+        "clue_ids": [
+            "CLUE_08"
+        ]
+    }
+]
