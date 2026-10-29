@@ -1,4 +1,5 @@
 """Export the player-facing archive view without leaking hidden world truth."""
+
 from __future__ import annotations
 
 import json
@@ -9,7 +10,16 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 WORLD_BIBLE_PATH = PROJECT_ROOT / "world" / "okuribi_world_bible.json"
 CORPUS_PATH = PROJECT_ROOT / "world" / "docs.json"
 
-PUBLIC_FIELDS = ("id", "title", "type", "date", "author", "reliability", "text", "clue_ids")
+PUBLIC_FIELDS = (
+    "id",
+    "title",
+    "type",
+    "date",
+    "author",
+    "reliability",
+    "text",
+    "clue_ids",
+)
 
 
 def load_world_bible(path: Path = WORLD_BIBLE_PATH) -> dict[str, Any]:

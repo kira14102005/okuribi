@@ -1,8 +1,8 @@
 import unittest
 
 from world.retrieval.corpus import load_corpus
-from world.retrieval.keyword_search import search_documents
 from world.retrieval.cross_check import cross_check
+from world.retrieval.keyword_search import search_documents
 
 
 class TestOkuribiRetrieval(unittest.TestCase):
@@ -17,13 +17,17 @@ class TestOkuribiRetrieval(unittest.TestCase):
         self.assertTrue(all("forged" not in doc for doc in self.corpus))
 
     def test_transfer_query_finds_transfer_record(self):
-        results = search_documents("status transferred effective date", corpus=self.corpus)
+        results = search_documents(
+            "status transferred effective date", corpus=self.corpus
+        )
         self.assertTrue(results)
         self.assertEqual(results[0]["id"], "DOC_02")
 
     def test_metadata_filter(self):
         results = search_documents(
-            "lantern festival", filters={"type": "festival_inventory"}, corpus=self.corpus
+            "lantern festival",
+            filters={"type": "festival_inventory"},
+            corpus=self.corpus,
         )
         self.assertTrue(all(doc["type"] == "festival_inventory" for doc in results))
         self.assertTrue(any(doc["id"] == "DOC_06" for doc in results))

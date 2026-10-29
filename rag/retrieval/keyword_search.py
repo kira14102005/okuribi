@@ -1,8 +1,10 @@
-"""Simple lexical baseline for Okuribi's archive RAG.
+"""
+Simple lexical baseline for Okuribi's archive RAG.
 
 This is intentionally small and dependency-free. It is a baseline to test corpus
 quality and metadata behavior before adding embeddings.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -14,10 +16,44 @@ from retrieval.corpus import load_corpus
 
 TOKEN_RE = re.compile(r"[a-z0-9']+", re.IGNORECASE)
 STOPWORDS = {
-    "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
-    "in", "into", "is", "it", "of", "on", "or", "that", "the", "this",
-    "to", "was", "were", "will", "with", "why", "does", "do", "what",
-    "who", "when", "how", "i", "me", "my", "we", "you", "your",
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "by",
+    "for",
+    "from",
+    "in",
+    "into",
+    "is",
+    "it",
+    "of",
+    "on",
+    "or",
+    "that",
+    "the",
+    "this",
+    "to",
+    "was",
+    "were",
+    "will",
+    "with",
+    "why",
+    "does",
+    "do",
+    "what",
+    "who",
+    "when",
+    "how",
+    "i",
+    "me",
+    "my",
+    "we",
+    "you",
+    "your",
 }
 
 
@@ -65,8 +101,10 @@ def search_documents(
 
     candidates = []
     for doc in documents:
-        if any(str(doc.get(key, "")).lower() != str(value).lower()
-               for key, value in filters.items()):
+        if any(
+            str(doc.get(key, "")).lower() != str(value).lower()
+            for key, value in filters.items()
+        ):
             continue
         score = score_document(query_tokens, doc)
         if score > 0:
@@ -93,7 +131,9 @@ def main() -> None:
 
     for result in results:
         print(f"[{result['id']}] {result['title']} (score={result['score']})")
-        print(f"  Date: {result['date']} | Type: {result['type']} | Reliability: {result['reliability']}")
+        print(
+            f"  Date: {result['date']} | Type: {result['type']} | Reliability: {result['reliability']}"
+        )
         print(f"  {result['text']}")
         print()
 
