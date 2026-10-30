@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from langchain_core.documents import Document
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 WORLD_BIBLE_PATH = PROJECT_ROOT / "world" / "okuribi_world_bible.json"
 CORPUS_PATH = PROJECT_ROOT / "world" / "archive_docs.json"
@@ -50,6 +52,18 @@ def load_corpus(path: Path = CORPUS_PATH) -> list[dict[str, Any]]:
         build_corpus(output_path=path)
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def load_archive_docs():
+    docs = load_corpus()
+    docs = [
+        Document(
+            page_content=doc["text"],
+            metadata={key: value for key, value in doc.items() if key != "text"},
+        )
+        for doc in docs
+    ]
+    return docs
 
 
 if __name__ == "__main__":
