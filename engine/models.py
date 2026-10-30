@@ -38,20 +38,49 @@ class GameState(BaseModel):
     notebook: NoteBook = Field(default_factory=NoteBook)
 
 
+from typing import Annotated, Any
+
+from pydantic import BaseModel, Field
+
+
 class GameAction(BaseModel):
-    action_type: Literal[
-        "inspect_location", "question_npc", "perform_ritual", "search_doc"
-    ]
+    pass
+
+
+class InspectLocationAction(GameAction):
+    action_type: Literal["inspect_location"] = "inspect_location"
+    location_id: str
+
+
+class TalkNPCAction(GameAction):
+    action_type: Literal["question_npc"] = "question_npc"
+    npc_id: str
+    topic: str | None = None
+
+
+class SearchDocAction(GameAction):
+    action_type: Literal["search_doc"] = "search_doc"
+    document_id: str | None = None
+
+
+class PerformRitualAction(GameAction):
+    action_type: Literal["perform_ritual"] = "perform_ritual"
+    ritual_id: str
+
+
+ActionRequest = Annotated[
+    InspectLocationAction | TalkNPCAction | SearchDocAction | PerformRitualAction,
+    Field(discriminator="action_type"),
+]
 
 
 class ActionResult(BaseModel):
     success: bool
     message: str
-    ap_spent: int
-    discovered_clues: list[str] = Field(
-        default_factory=list,
-        description="The list of discovered clues as a result of the action.",
-    )
+    action_type: str
+    ap_spent: int = 0
+    discovered_clues: list[str] = Field(default_factory=list)
+    data: dict[str, Any] = Field(default_factory=dict)
 
 
 VALID_LOCATIONS = {
@@ -86,23 +115,3 @@ class GameMap(BaseModel):
         for rule in self.rules:
             npc_dict[rule.npc_id].append(rule.location_id)
         return dict(npc_dict)
-
-
-class InspectLocationAction(GameAction):
-    location_id: str
-
-    @field_validator("location_id")
-    def validate_location_id(cls, v):
-        if v not in VALID_LOCATIONS:
-            raise ValueError(
-                f"Invalid location_id: {v}. Must be one of {VALID_LOCATIONS}."
-            )
-        return v
-
-    result: ActionResult = Field(default_factory=lambda: ActionResult())
-
-
-class TalkNPCAction(GameAction):
-    npc_id: str
-
-    result: ActionResult = Field(default_factory=lambda: ActionResult())
