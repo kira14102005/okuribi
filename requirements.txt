@@ -36,3 +36,4 @@ ty
 pydantic
 langchain-text-splitters
 langchain-ollama
+rank-bm25
