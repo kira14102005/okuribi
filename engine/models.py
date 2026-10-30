@@ -42,7 +42,6 @@ class GameAction(BaseModel):
     action_type: Literal[
         "inspect_location", "question_npc", "perform_ritual", "search_doc"
     ]
-    target_id: str
 
 
 class ActionResult(BaseModel):
@@ -66,9 +65,27 @@ VALID_LOCATIONS = {
 }
 
 
+from collections import defaultdict
+
+from pydantic import BaseModel, computed_field
+
+
 class NPCatLocation(BaseModel):
     npc_id: str
     location_id: str
+
+
+class GameMap(BaseModel):
+    rules: list[NPCatLocation]
+
+    @computed_field
+    @property
+    def npc_to_locations(self) -> dict[str, list[str]]:
+        """Automatically groups locations by npc_id, supporting multiple locations."""
+        npc_dict = defaultdict(list)
+        for rule in self.rules:
+            npc_dict[rule.npc_id].append(rule.location_id)
+        return dict(npc_dict)
 
 
 class InspectLocationAction(GameAction):
@@ -81,5 +98,11 @@ class InspectLocationAction(GameAction):
                 f"Invalid location_id: {v}. Must be one of {VALID_LOCATIONS}."
             )
         return v
+
+    result: ActionResult = Field(default_factory=lambda: ActionResult())
+
+
+class TalkNPCAction(GameAction):
+    npc_id: str
 
     result: ActionResult = Field(default_factory=lambda: ActionResult())
