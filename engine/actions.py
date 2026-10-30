@@ -9,7 +9,7 @@ from engine.models import (
 )
 
 
-def validate_action(state: GameState, action: ActionRequest) -> None:
+def validate_action(state: GameState, action: ActionRequest, world: dict) -> None:
     """
     Validate if the action can be performed given the current game state.
 
@@ -29,7 +29,7 @@ def validate_action(state: GameState, action: ActionRequest) -> None:
 
 
 def validate_inspect_location_action(
-    state: GameState, action: InspectLocationAction
+    state: GameState, action: InspectLocationAction, world: dict
 ) -> None:
     """
     Validate if the 'inspect_location' action can be performed given the current game state.
@@ -41,10 +41,6 @@ def validate_inspect_location_action(
     Raises:
         ValueError: If the action cannot be performed due to insufficient AP or invalid action type.
     """
-    if action.location_id == state.current_location:
-        raise ValueError(
-            f"Cannot inspect the current location '{state.current_location}'."
-        )
 
     if action.location_id == "school":
         if state.current_day % 7 == 0:
@@ -56,11 +52,24 @@ def validate_inspect_location_action(
                 "You need to question NPC_TAKADA before inspecting the school."
             )
 
-    for action.location_id in state.notebook.discovered_locations:
+    required_loc_facts = world["locations"][action.location_id].required_facts
+    if not all(fact in state.notebook.discovered_clues for fact in required_loc_facts):
+        missing_facts = [
+            fact
+            for fact in required_loc_facts
+            if fact not in state.notebook.discovered_clues
+        ]
+        raise ValueError(
+            f"Cannot inspect location '{action.location_id}'. Missing required facts: {', '.join(missing_facts)}"
+        )
+
+    if action.location_id in state.notebook.discovered_locations:
         raise ValueError(f"Location '{action.location_id}' has already been inspected.")
 
 
-def validate_npc_talk_action(state: GameState, action: TalkNPCAction) -> None:
+def validate_npc_talk_action(
+    state: GameState, action: TalkNPCAction, world: dict
+) -> None:
     """
     Validate if the 'question_npc' action can be performed given the current game state.
 
@@ -76,13 +85,18 @@ def validate_npc_talk_action(state: GameState, action: TalkNPCAction) -> None:
     if action.npc_id in talked_npcs:
         raise ValueError(f"NPC '{action.npc_id}' has already been talked to.")
 
-    if action.npc_id in rules and state.current_location != rules[action.npc_id]:
+    if (
+        action.npc_id in npc_locations
+        and state.current_location != npc_locations[action.npc_id]
+    ):
         raise ValueError(
-            f"Move to location '{rules[action.npc_id]}' to talk to NPC '{action.npc_id}'."
+            f"Move to location '{npc_locations[action.npc_id]}' to talk to NPC '{action.npc_id}'."
         )
 
 
-def validate_action_search_doc(state: GameState, action: SearchDocAction) -> None:
+def validate_action_search_doc(
+    state: GameState, action: SearchDocAction, world: dict
+) -> None:
     """
     Validate if the 'search_doc' action can be performed given the current game state.
 
@@ -97,13 +111,9 @@ def validate_action_search_doc(state: GameState, action: SearchDocAction) -> Non
         raise ValueError(
             f"Cannot search for documents in '{state.current_location}'. Move to 'library' to perform this action."
         )
-    if not state.library_password_found:
-        raise ValueError(
-            "Cannot search for documents. The library password has not been found yet. Talk to the NPCs to find the password before searching for documents."
-        )
 
 
-rules = GameMap(
+npc_locations = GameMap(
     rules=[
         {"npc_id": "NPC_MIZUKI", "location_id": "student_council_room"},
         {"npc_id": "NPC_SAE", "location_id": "library"},

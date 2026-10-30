@@ -1,16 +1,13 @@
+from collections import defaultdict
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, computed_field, field_validator
 
 
 class NoteBook(BaseModel):
     discovered_locations: set[str] = Field(
         default_factory=set,
         description="The set of discovered locations in the notebook.",
-    )
-    list_of_clues: list[str] = Field(
-        default_factory=list,
-        description="The list of clues in the notebook.",
     )
     npcs_questioned: set[str] = Field(default_factory=set)
     docs_investigated: set[str] = Field(default_factory=set)
@@ -94,11 +91,6 @@ VALID_LOCATIONS = {
 }
 
 
-from collections import defaultdict
-
-from pydantic import BaseModel, computed_field
-
-
 class NPCatLocation(BaseModel):
     npc_id: str
     location_id: str
@@ -109,9 +101,9 @@ class GameMap(BaseModel):
 
     @computed_field
     @property
-    def npc_to_locations(self) -> dict[str, list[str]]:
+    def npc_to_locations(self) -> dict[str, str]:
         """Automatically groups locations by npc_id, supporting multiple locations."""
-        npc_dict = defaultdict(list)
+        npc_dict = defaultdict(str)
         for rule in self.rules:
-            npc_dict[rule.npc_id].append(rule.location_id)
+            npc_dict[rule.npc_id] = rule.location_id
         return dict(npc_dict)
