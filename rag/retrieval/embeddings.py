@@ -12,7 +12,15 @@ VECTORSTORE_PATH = PROJECT_ROOT / "world" / "vectorstore"
 embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL)
 
 
-def main():
+def embed_query(query: str) -> list[float]:
+    """Return the embedding vector for a query string."""
+    return embeddings.embed_query(query)
+
+
+def embed_documents():
     chunks = chunk_doc(load_corpus())
     vectorstore = FAISS.from_documents(chunks, embeddings)
     vectorstore.save_local(VECTORSTORE_PATH)
+
+if __name__ == "__main__":
+    embed_documents()
