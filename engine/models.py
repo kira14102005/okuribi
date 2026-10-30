@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, computed_field, field_validator
 
@@ -13,6 +13,16 @@ class NoteBook(BaseModel):
     docs_investigated: set[str] = Field(default_factory=set)
 
 
+class NPCState(BaseModel):
+    talked_topics: set[str] = Field(default_factory=set)
+    interaction_count: int = 0
+
+
+class RitualState(BaseModel):
+    completed: bool = False
+    completed_steps: set[str] = Field(default_factory=set)
+
+
 class GameState(BaseModel):
     loop_id: int = Field(
         default=1, description="The current loop ID of the game state."
@@ -24,20 +34,17 @@ class GameState(BaseModel):
         default="shrine", description="The current location in the game state."
     )
     ap_remaining: int = Field(
-        default=3, ge=0, description="The remaining action points in the game state."
+        default=10, ge=0, description="The remaining action points in the game state."
     )
 
     discovered_clues: set[str] = Field(
         default_factory=set,
         description="The set of discovered clues in the game state.",
     )
-
+    discovered_facts: set[str] = Field(default_factory=set)
+    npc_states: dict[str, NPCState] = Field(default_factory=dict)
+    ritual_states: dict[str, RitualState] = Field(default_factory=dict)
     notebook: NoteBook = Field(default_factory=NoteBook)
-
-
-from typing import Annotated, Any
-
-from pydantic import BaseModel, Field
 
 
 class GameAction(BaseModel):
