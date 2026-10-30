@@ -1,20 +1,21 @@
 from engine.ap import get_ap_cost
 from engine.models import (
-    GameAction,
+    ActionRequest,
     GameMap,
     GameState,
     InspectLocationAction,
+    SearchDocAction,
     TalkNPCAction,
 )
 
 
-def validate_action(state: GameState, action: GameAction) -> None:
+def validate_action(state: GameState, action: ActionRequest) -> None:
     """
     Validate if the action can be performed given the current game state.
 
     Args:
         state (GameState): The current game state.
-        action (GameAction): The action to validate.
+        action (ActionRequest): The action to validate.
 
     Raises:
         ValueError: If the action cannot be performed due to insufficient AP or invalid action type.
@@ -35,7 +36,7 @@ def validate_inspect_location_action(
 
     Args:
         state (GameState): The current game state.
-        action (GameAction): The action to validate.
+        action (InspectLocationAction): The action to validate.
 
     Raises:
         ValueError: If the action cannot be performed due to insufficient AP or invalid action type.
@@ -44,6 +45,16 @@ def validate_inspect_location_action(
         raise ValueError(
             f"Cannot inspect the current location '{state.current_location}'."
         )
+
+    if action.location_id == "school":
+        if state.current_day % 7 == 0:
+            raise ValueError(
+                "School is closed on Sundays. You cannot inspect the school on this day."
+            )
+        if "NPC_TAKADA" not in state.notebook.npcs_questioned:
+            raise ValueError(
+                "You need to question NPC_TAKADA before inspecting the school."
+            )
 
     for action.location_id in state.notebook.discovered_locations:
         raise ValueError(f"Location '{action.location_id}' has already been inspected.")
@@ -71,10 +82,31 @@ def validate_npc_talk_action(state: GameState, action: TalkNPCAction) -> None:
         )
 
 
+def validate_action_search_doc(state: GameState, action: SearchDocAction) -> None:
+    """
+    Validate if the 'search_doc' action can be performed given the current game state.
+
+    Args:
+        state (GameState): The current game state.
+        action (SearchDocAction): The action to validate.
+
+    Raises:
+        ValueError: If the action cannot be performed due to insufficient AP or invalid action type.
+    """
+    if state.current_location != "library":
+        raise ValueError(
+            f"Cannot search for documents in '{state.current_location}'. Move to 'library' to perform this action."
+        )
+    if not state.library_password_found:
+        raise ValueError(
+            "Cannot search for documents. The library password has not been found yet. Talk to the NPCs to find the password before searching for documents."
+        )
+
+
 rules = GameMap(
     rules=[
         {"npc_id": "NPC_MIZUKI", "location_id": "student_council_room"},
-        {"npc_id": "NPC_MIZUKI", "location_id": "library"},
+        {"npc_id": "NPC_SAE", "location_id": "library"},
         {"npc_id": "NPC_REN", "location_id": "computer_lab"},
         {"npc_id": "NPC_HARU", "location_id": "equipment_shed"},
     ]
