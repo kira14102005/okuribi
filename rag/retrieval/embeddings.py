@@ -3,8 +3,8 @@ from pathlib import Path
 from langchain_community.vectorstores import FAISS
 from langchain_ollama import OllamaEmbeddings
 
-from retrieval.chunking import chunk_doc
-from retrieval.corpus import load_corpus
+from rag.retrieval.chunking import chunk_doc
+from rag.retrieval.corpus import load_corpus
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 EMBEDDING_MODEL = "embeddinggemma-2"

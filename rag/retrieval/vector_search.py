@@ -8,7 +8,7 @@ from langchain_core.documents import Document
 
 load_dotenv()
 
-import retrieval.embeddings as embed
+import rag.retrieval.embeddings as embed
 
 
 @lru_cache(maxsize=1)

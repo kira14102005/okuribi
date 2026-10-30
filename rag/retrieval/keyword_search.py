@@ -12,7 +12,7 @@ import re
 from collections import Counter
 from typing import Any
 
-from retrieval.corpus import load_corpus
+from rag.retrieval.corpus import load_corpus
 
 TOKEN_RE = re.compile(r"[a-z0-9']+", re.IGNORECASE)
 STOPWORDS = {

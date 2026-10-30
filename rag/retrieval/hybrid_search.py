@@ -3,8 +3,8 @@ from collections import defaultdict
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
 
-from retrieval.corpus import load_archive_docs
-from retrieval.vector_search import get_vectorstore
+from rag.retrieval.corpus import load_archive_docs
+from rag.retrieval.vector_search import get_vectorstore
 
 
 def document_key(doc: Document) -> str:
@@ -49,6 +49,7 @@ def hybrid_search(
     query: str,
     top_k: int = 5,
     candidate_k: int = 5,
+    filters: dict | None = None,
 ) -> list[tuple[Document, float]]:
     """Combine dense FAISS search and BM25 keyword search."""
     if not query.strip():
@@ -58,7 +59,7 @@ def hybrid_search(
     vectorstore = get_vectorstore()
     dense_retriever = vectorstore.as_retriever(
         search_type="similarity",
-        search_kwargs={"k": candidate_k},
+        search_kwargs={"k": candidate_k, "filters": filters},
     )
     dense_docs = dense_retriever.invoke(query)
 

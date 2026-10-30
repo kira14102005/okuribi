@@ -55,7 +55,7 @@ GOLDEN_QUERIES = [
     # Add more queries and verify their relevant IDs.
 ]
 
-from retrieval.hybrid_search import hybrid_search
+from rag.retrieval.hybrid_search import hybrid_search
 
 if __name__ == "__main__":
     print(evaluate_retriever(hybrid_search, GOLDEN_QUERIES))
