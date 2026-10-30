@@ -1,7 +1,19 @@
-from dataclasses import dataclass
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+class NoteBook(BaseModel):
+    discovered_locations: set[str] = Field(
+        default_factory=set,
+        description="The set of discovered locations in the notebook.",
+    )
+    list_of_clues: list[str] = Field(
+        default_factory=list,
+        description="The list of clues in the notebook.",
+    )
+    npcs_questioned: set[str] = Field(default_factory=set)
+    docs_investigated: set[str] = Field(default_factory=set)
 
 
 class GameState(BaseModel):
@@ -23,10 +35,7 @@ class GameState(BaseModel):
         description="The set of discovered clues in the game state.",
     )
 
-    notebook_entries: list[str] = Field(
-        default_factory=list,
-        description="The list of notebook entries in the game state.",
-    )
+    notebook: NoteBook = Field(default_factory=NoteBook)
 
 
 class GameAction(BaseModel):
@@ -44,3 +53,33 @@ class ActionResult(BaseModel):
         default_factory=list,
         description="The list of discovered clues as a result of the action.",
     )
+
+
+VALID_LOCATIONS = {
+    "shrine",
+    "school",
+    "library",
+    "cafe",
+    "equipment_shed",
+    "computer_lab",
+    "student_council_room",
+}
+
+
+class NPCatLocation(BaseModel):
+    npc_id: str
+    location_id: str
+
+
+class InspectLocationAction(GameAction):
+    location_id: str
+
+    @field_validator("location_id")
+    def validate_location_id(cls, v):
+        if v not in VALID_LOCATIONS:
+            raise ValueError(
+                f"Invalid location_id: {v}. Must be one of {VALID_LOCATIONS}."
+            )
+        return v
+
+    result: ActionResult = Field(default_factory=lambda: ActionResult())
