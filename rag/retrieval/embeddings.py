@@ -22,5 +22,6 @@ def embed_documents():
     vectorstore = FAISS.from_documents(chunks, embeddings)
     vectorstore.save_local(VECTORSTORE_PATH)
 
+
 if __name__ == "__main__":
     embed_documents()

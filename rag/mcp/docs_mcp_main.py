@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from fastmcp import FastMCP
+
 from rag.retrieval.hybrid_search import hybrid_search
 
 load_dotenv()
