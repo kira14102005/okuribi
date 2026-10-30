@@ -1,5 +1,30 @@
 [
     {
+    "id": "NPC_TAKADA",
+    "name": "Principal Takada",
+    "role": "School principal",
+    "is_suspect": true,
+    "public_persona": "Authoritative, dignified, deeply concerned with protecting the school's reputation.",
+    "motive": "He fears that a scandal regarding the fire and Aoi's death will destroy the academy's funding and accreditation.",
+    "secret": "He personally ordered the digital records to be altered and the archive annex sealed to cover up the safety violations that caused the fire.",
+    "knows": [
+        "The true cause of the fire in the archive annex.",
+        "Who ordered the digital database changes.",
+        "The school's liability in the incident."
+    ],
+    "does_not_know": [
+        "Where the missing bell clapper is currently hidden.",
+        "What Sae did with the paper register copy.",
+        "The personal guilt weighing on the individual students."
+    ],
+    "dialogue_style": "Formal, commanding, dismissive of rumors, subtly threatening when pressed too hard.",
+    "allowed_clue_ids": [
+        "CLUE_09",
+        "CLUE_10"
+    ],
+    "deja_vu_line": "We have discussed this administrative matter already. Let us not repeat ourselves."
+},
+    {
         "id": "NPC_MIZUKI",
         "name": "Mizuki Sato",
         "role": "Student council president",
