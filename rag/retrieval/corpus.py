@@ -8,7 +8,7 @@ from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 WORLD_BIBLE_PATH = PROJECT_ROOT / "world" / "okuribi_world_bible.json"
-CORPUS_PATH = PROJECT_ROOT / "world" / "docs.json"
+CORPUS_PATH = PROJECT_ROOT / "world" / "archive_docs.json"
 
 PUBLIC_FIELDS = (
     "id",
@@ -41,8 +41,7 @@ def build_corpus(
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:
-        for doc in docs:
-            f.write(json.dumps(doc, ensure_ascii=False) + "\n")
+        json.dump(docs, f, indent=2)
     return docs
 
 
@@ -50,4 +49,10 @@ def load_corpus(path: Path = CORPUS_PATH) -> list[dict[str, Any]]:
     if not path.exists():
         build_corpus(output_path=path)
     with path.open("r", encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
+        return json.load(f)
+
+
+if __name__ == "__main__":
+    docs = load_corpus()
+    for doc in docs:
+        print(doc)

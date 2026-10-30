@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from world.retrieval.corpus import load_corpus
+from retrieval.corpus import load_corpus
 
 # These rules are game logic, not model-generated conclusions.
 # They identify observable contradictions without revealing the canonical answer.
