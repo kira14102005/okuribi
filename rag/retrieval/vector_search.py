@@ -60,7 +60,10 @@ if __name__ == "__main__":
     results = query_vectorstore(args.query, args.k, filters)
 
     for doc, score in results:
-        print(f"\nDocument: {doc.metadata.get('doc_id', 'unknown')}")
+        print(f"\nDocument: {doc.metadata.get('id', 'unknown')}")
+        print(f"Type: {doc.metadata.get('type', 'unknown')}")
+        print(f"Chunk_id: {doc.metadata.get('chunk_id', 'unknown')}")
+        print(f"Date: {doc.metadata.get('date', 'unknown')}")
         print(f"Title: {doc.metadata.get('title', 'Untitled')}")
         print(f"Raw FAISS score: {score:.4f}")
         print(doc.page_content)
