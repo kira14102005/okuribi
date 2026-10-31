@@ -1,10 +1,11 @@
+import argparse
 import asyncio
 import json
 
 from langchain.mcp import MCPAdapter
+
 from rag.mcp.docs_mcp_main import mcp
 
-# ponytail: in-process client imports the server directly; switch to
 # StdioTransport/`python -m rag.mcp.docs_mcp_main` subprocess only if the game
 # and the server must run as separate processes.
 
@@ -32,4 +33,13 @@ async def search_docs(query: str = "When is the festival?"):
 
 
 if __name__ == "__main__":
-    asyncio.run(search_docs())
+    parser = argparse.ArgumentParser(description="Search documents via MCP.")
+
+    parser.add_argument(
+        "--query",
+        type=str,
+        default="When is the festival?",
+        help="Search query for documents.",
+    )
+    args = parser.parse_args()
+    asyncio.run(search_docs(query=args.query))
