@@ -10,6 +10,7 @@ from typing_extensions import TypedDict
 
 from engine.models import ActionRequest, ActionResult, GameState
 from game.engine_main import ACTION_ADAPTER, WORLD_BIBLE_PATH, GameEngine
+from game.llm_context import build_npc_prompt, create_llm
 from game.mcp_docs_client import search_docs_sync
 from game.world_loader import load_world
 
@@ -50,6 +51,7 @@ class OkuribiState(TypedDict, total=False):
     action_plan: dict
     action: ActionRequest
     action_result: ActionResult
+    npc_dialogue: str
     response: str
     needs_clarification: bool
 
@@ -80,9 +82,22 @@ def build_action(plan: ActionPlan) -> ActionRequest:
 
 
 llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+llm2 = create_llm()
 
 
-def build_workflow(engine: GameEngine, model_name: str):
+def talk_as_npc(world, npc_id, player_question, clues):
+    prompt = build_npc_prompt(
+        world=world,
+        npc_id=npc_id,
+        player_question=player_question,
+        revealed_clues=clues,
+    )
+    parser = StrOutputParser()
+    chain = llm2 | parser
+    return chain.invoke(prompt)
+
+
+def build_workflow(engine: GameEngine, model_name: str, world: dict):
     planner = llm.with_structured_output(ActionPlan)
 
     narrator = ChatGoogleGenerativeAI(model=model_name)
@@ -151,10 +166,64 @@ Player request:
             "action_result": result,
         }
 
+    def talk_to_npc(state: OkuribiState) -> dict:
+        """Generate NPC dialogue only after a successful engine action."""
+
+        action = state["action"]
+        result = state["action_result"]
+
+        # Never let the NPC respond to an invalid or failed action.
+        if action.action_type != "question_npc" or not result.success:
+            return {}
+
+        game = state["game_state"]
+
+        # Build context from clues that the engine has actually unlocked.
+        # Prefer full clue records from the World Bible when available.
+        config = world.get("engine_config", {})
+        clues_by_id = config.get("clues_by_id", {})
+
+        if not clues_by_id:
+            raw_clues = world.get("clues", [])
+            if isinstance(raw_clues, list):
+                clues_by_id = {
+                    clue["id"]: clue
+                    for clue in raw_clues
+                    if isinstance(clue, dict) and clue.get("id")
+                }
+            elif isinstance(raw_clues, dict):
+                clues_by_id = raw_clues
+
+        revealed_clues = [
+            clues_by_id.get(clue_id, {"id": clue_id})
+            for clue_id in sorted(game.discovered_clues)
+        ]
+
+        npc_id = action.npc_id
+        player_question = state["user_query"]
+
+        dialogue = talk_as_npc(
+            world=world,
+            npc_id=npc_id,
+            player_question=player_question,
+            clues=revealed_clues,
+        )
+
+        return {"npc_dialogue": dialogue}
+
     def route_after_planning(state: OkuribiState) -> str:
         if state.get("needs_clarification", False):
             return END
         return "execute_action"
+
+    def route_after_execution(state: OkuribiState) -> str:
+        action = state["action"]
+        result = state["action_result"]
+
+        if action.action_type == "question_npc" and result.success:
+            return "talk_to_npc"
+
+        return "narrate_result"
 
     def narrate_result(state: OkuribiState) -> dict:
         game = state["game_state"]
@@ -193,6 +262,7 @@ If the action failed, explain the failure honestly.
 
     graph.add_node("plan_action", plan_action)
     graph.add_node("execute_action", execute_action)
+    graph.add_node("talk_to_npc", talk_to_npc)
     graph.add_node("narrate_result", narrate_result)
 
     graph.add_edge(START, "plan_action")
@@ -201,8 +271,11 @@ If the action failed, explain the failure honestly.
         "plan_action",
         route_after_planning,
     )
-
-    graph.add_edge("execute_action", "narrate_result")
+    graph.add_conditional_edges(
+        "execute_action",
+        route_after_execution,
+    )
+    graph.add_edge("talk_to_npc", "narrate_result")
     graph.add_edge("narrate_result", END)
 
     return graph.compile(checkpointer=MemorySaver())
