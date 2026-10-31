@@ -47,9 +47,11 @@ class TalkNPCAction(GameAction):
     npc_id: str
     topic: str | None = None
 
+
 class MoveLocationAction(GameAction):
     action_type: Literal["move_location"] = "move_location"
     location_id: str
+
 
 class SearchDocAction(GameAction):
     action_type: Literal["search_doc"] = "search_doc"
@@ -73,7 +75,8 @@ ActionRequest = Annotated[
     | TalkNPCAction
     | SearchDocAction
     | PerformRitualAction
-    | CrossCheckAction,
+    | CrossCheckAction
+    | MoveLocationAction,
     Field(discriminator="action_type"),
 ]
 
