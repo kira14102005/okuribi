@@ -1,0 +1,1168 @@
+{
+  "metadata": {
+    "title": "Okuribi",
+    "version": "1.0.0",
+    "language": "en",
+    "setting": "Hanamori High, a secluded Japanese high school",
+    "genre": [
+      "supernatural mystery",
+      "psychological horror",
+      "time loop"
+    ],
+    "design_notes": [
+      "The game engine is the authority on ground truth, clue unlocking, AP, and ritual verdicts.",
+      "LLMs may narrate or role-play NPCs but must not invent clues or decide the solution.",
+      "All four named NPCs are suspects; each has a motive, a secret, and incomplete knowledge.",
+      "The eight clues below are the canonical clue set for the first playable version.",
+      "The cursed Git repository is fictional game state backed by a locally generated repository only."
+    ]
+  },
+  "premise": {
+    "public_legend": "When the Seventh Name is spoken at Hanamori High, a student dies before dawn. The curse ends only when the person who truly died is named and sent back through the Okuribi ritual.",
+    "player_role": "A transfer student who arrives after the school has already rewritten its own memories.",
+    "opening_scene": "At 7:07 PM on October 31, the school PA system crackles. A voice reads six names, pauses, and whispers a seventh name that the player cannot quite hear. Every clock stops for seven seconds. In the archive terminal, a new Git commit appears: 'There was never a seventh student.'",
+    "central_mystery": "Who was the student erased from Hanamori High's records, who altered the archive, and what offering will release the spirit?",
+    "tone": "Quiet dread, unreliable memories, contradictory records, intimate betrayals, and revelations that reframe earlier scenes."
+  },
+  "game_rules": {
+    "starting_action_points": 8,
+    "action_costs": {
+      "search_archive": 1,
+      "talk_to_npc": 1,
+      "cross_check": 1,
+      "view_notebook": 0,
+      "perform_ritual": 1
+    },
+    "loop_rules": {
+      "when_ap_reaches_zero": "Trigger THE_CALLING unless the game has already ended.",
+      "wrong_ritual": "Trigger a death scene, increase corruption substantially, and reset the loop.",
+      "correct_ritual": "Play the true ending and restore the cursed repository to its initial seed state.",
+      "persistent_across_loops": [
+        "clues_found",
+        "notebook_entries",
+        "loop_number",
+        "player_recorded_theories"
+      ],
+      "reset_each_loop": [
+        "action_points",
+        "current_loop_dialogue",
+        "npc_temporary_reveals",
+        "current_phase"
+      ],
+      "npc_memory": "NPCs forget most prior-loop conversations. A scripted deja-vu line may trigger after loop 1, but NPCs must not gain facts they did not know."
+    },
+    "truth_policy": {
+      "truth_source": "truth.json fields in this world bible are server-side game-engine data and must never be passed wholesale to an NPC or narrator prompt.",
+      "clue_unlocking": "Unlock clue IDs only from the deterministic clue_unlock_rules mapping.",
+      "ritual_verdict": "Pure code compares the selected identity and offering against ritual_solution.",
+      "narration": "LLMs may express evidence in atmospheric prose but may not change source text, provenance, clue IDs, or verdicts."
+    },
+    "ritual": {
+      "available_during_investigation": true,
+      "required_player_inputs": [
+        "student_id",
+        "offering_id"
+      ],
+      "offerings": [
+        {
+          "id": "OFFERING_RED_THREAD",
+          "name": "Red thread",
+          "description": "A thread tied around a name tag."
+        },
+        {
+          "id": "OFFERING_CHARRED_REGISTER",
+          "name": "Charred register page",
+          "description": "A fragment from the old enrollment register."
+        },
+        {
+          "id": "OFFERING_PAPER_LANTERN",
+          "name": "Paper lantern",
+          "description": "A lantern lit for a remembered dead."
+        },
+        {
+          "id": "OFFERING_BELL",
+          "name": "The school bell clapper",
+          "description": "The metal tongue removed from the old bell."
+        }
+      ]
+    }
+  },
+  "truth": {
+    "spoiler_warning": "SERVER-SIDE ONLY. Never include this object in player-facing prompts or UI.",
+    "true_dead_student": "STU_07",
+    "true_dead_student_name": "Aoi Kisaragi",
+    "actual_timeline": [
+      {
+        "date": "2019-09-18",
+        "event": "Aoi Kisaragi discovers that the school plans to erase a student who died in an accident during the lantern festival."
+      },
+      {
+        "date": "2019-09-21",
+        "event": "Aoi enters the sealed archive to restore the student's name to the register."
+      },
+      {
+        "date": "2019-09-21",
+        "event": "A short circuit starts a fire in the archive annex. Aoi dies while saving the original register from being destroyed."
+      },
+      {
+        "date": "2019-09-22",
+        "event": "Four students and one staff member agree to conceal the death because the school had already falsified its safety report."
+      },
+      {
+        "date": "2019-10-31",
+        "event": "The Seventh Name curse begins repeating. The archive's records and the school's collective memory are rewritten."
+      }
+    ],
+    "actual_cause": "Aoi Kisaragi died in the archive annex fire while trying to restore the erased student's name. The curse is sustained by the school's deliberate erasure of Aoi and by the survivors' refusal to acknowledge their role in the cover-up.",
+    "cover_up": "The school's archive system was deliberately altered after Aoi's death. Several students contributed for different reasons, but none of the four suspects alone created the curse. The supernatural effect grew from the collective lie.",
+    "twist_reveals": [
+      "The supposed 'Seventh Name' is not a name that causes a new death; it is the name of the person the school has already erased.",
+      "The person listed as transferred away was actually Aoi Kisaragi.",
+      "The most suspicious suspect, Ren, altered a record but did so to hide evidence of the fire, not to cause Aoi's death.",
+      "The school bell's missing clapper was removed by Aoi before the fire; it was meant to be used to call everyone to witness the restored register.",
+      "The loop does not punish the player for guessing incorrectly in a moral sense; each failed ritual repeats the school's refusal to remember."
+    ],
+    "ritual_solution": {
+      "student_id": "STU_07",
+      "student_name": "Aoi Kisaragi",
+      "offering_id": "OFFERING_PAPER_LANTERN",
+      "reason": "The lantern was the light Aoi prepared for the memorial procession. Naming Aoi and lighting the lantern publicly acknowledges the erased death instead of trying to rewrite the archive again."
+    },
+    "forged_documents": [
+      "DOC_02",
+      "DOC_06"
+    ],
+    "misleading_but_not_forged_documents": [
+      "DOC_03",
+      "DOC_05"
+    ],
+    "npc_secret_map": {
+      "NPC_MIZUKI": "She saw the archive smoke and helped move the damaged register, but was told Aoi had escaped.",
+      "NPC_REN": "He altered a digital record after being threatened with expulsion; he knows the date was changed but not the full truth.",
+      "NPC_HARU": "He removed the bell clapper at Aoi's request before the fire and kept it hidden, believing it was part of a harmless memorial.",
+      "NPC_SAE": "She found Aoi's name in a paper register after the fire and chose not to report it because her family depended on the school's scholarship."
+    }
+  },
+  "npcs": [
+    {
+      "id": "NPC_MIZUKI",
+      "name": "Mizuki Sato",
+      "role": "Student council president",
+      "is_suspect": true,
+      "public_persona": "Composed, polite, precise, and uncomfortable with questions about the festival.",
+      "motive": "She fears that admitting she helped move the register will expose the council's role in the cover-up.",
+      "secret": "She saw smoke coming from the archive annex and helped carry a scorched register into the council room. An adult told her Aoi had escaped.",
+      "knows": [
+        "The festival was scheduled for September 21.",
+        "The archive annex was closed after the fire.",
+        "The register was physically damaged."
+      ],
+      "does_not_know": [
+        "The exact circumstances of Aoi's death.",
+        "Who changed every digital record.",
+        "The correct ritual offering."
+      ],
+      "dialogue_style": "Short, careful answers; deflects with procedural language before showing guilt.",
+      "allowed_clue_ids": [
+        "CLUE_01",
+        "CLUE_04"
+      ],
+      "deja_vu_line": "Have we had this conversation before? No. Forget I asked."
+    },
+    {
+      "id": "NPC_REN",
+      "name": "Ren Takeda",
+      "role": "Computer club member",
+      "is_suspect": true,
+      "public_persona": "Sarcastic, sleep-deprived, defensive about the school archive terminal.",
+      "motive": "He fears expulsion and public blame for changing the student database.",
+      "secret": "He changed Aoi's status to 'transferred' after a staff member threatened his scholarship. He did not know she had died when he made the change.",
+      "knows": [
+        "The database's transfer entry was edited after the listed transfer date.",
+        "A commit appeared under an account that should have been disabled.",
+        "The archive history has gaps."
+      ],
+      "does_not_know": [
+        "Who first ordered the cover-up.",
+        "What happened inside the archive annex.",
+        "Why the curse repeats."
+      ],
+      "dialogue_style": "Dry humor, technical metaphors, quick denial followed by reluctant precision.",
+      "allowed_clue_ids": [
+        "CLUE_02",
+        "CLUE_07"
+      ],
+      "deja_vu_line": "I swear I already debugged this conversation."
+    },
+    {
+      "id": "NPC_HARU",
+      "name": "Haru Nishimura",
+      "role": "Bell-ringer and track club runner",
+      "is_suspect": true,
+      "public_persona": "Quiet, observant, avoids eye contact whenever the old bell is mentioned.",
+      "motive": "He believes the bell's missing clapper makes him look responsible for the curse.",
+      "secret": "Aoi asked him to remove the bell clapper before the festival so she could use it during a memorial. He hid it in the equipment shed after the fire.",
+      "knows": [
+        "Aoi was preparing something for the festival.",
+        "The bell clapper was removed before the fire.",
+        "The school wanted the festival to continue despite the incident."
+      ],
+      "does_not_know": [
+        "That Aoi died in the archive annex.",
+        "Why Aoi wanted the register restored.",
+        "The ritual's exact requirements."
+      ],
+      "dialogue_style": "Few words, sensory details, long pauses, honest when asked a precise question.",
+      "allowed_clue_ids": [
+        "CLUE_03",
+        "CLUE_08"
+      ],
+      "deja_vu_line": "The bell sounds wrong again. It always sounds wrong here."
+    },
+    {
+      "id": "NPC_SAE",
+      "name": "Sae Fujimoto",
+      "role": "Library aide and scholarship student",
+      "is_suspect": true,
+      "public_persona": "Helpful, gentle, remembers small details, but avoids direct accusations.",
+      "motive": "She fears losing her scholarship and hurting her family if the school's cover-up becomes public.",
+      "secret": "She found Aoi's name in the paper register after the fire and stayed silent. She kept a copy of one page hidden inside a festival program.",
+      "knows": [
+        "Aoi's name was present in the paper register after the fire.",
+        "A later archive copy omitted that name.",
+        "The memorial lantern was never released onto the river."
+      ],
+      "does_not_know": [
+        "Who altered the digital history first.",
+        "Whether Mizuki knew Aoi was trapped.",
+        "The exact supernatural mechanism."
+      ],
+      "dialogue_style": "Warm and specific, offers mundane details that later become important.",
+      "allowed_clue_ids": [
+        "CLUE_05",
+        "CLUE_06"
+      ],
+      "deja_vu_line": "I kept a page. I don't remember why, but I knew I would need it."
+    },
+    {
+      "id": "NPC_TAKADA",
+      "name": "Principal Takada",
+      "role": "School principal",
+      "is_suspect": false,
+      "public_persona": null,
+      "motive": null,
+      "secret": [],
+      "knows": ["Let you enter the School Premises and investigate the incident."],
+      "does_not_know": [],
+      "dialogue_style": null,
+      "allowed_clue_ids": [],
+      "deja_vu_line": null,
+      "authoring_status": "PLACEHOLDER_DETAILS_NOT_DEFINED_IN_SOURCE_BIBLE"
+    }
+  ],
+  "suspects": [
+    {
+      "npc_id": "NPC_MIZUKI",
+      "suspicion_level_initial": 2,
+      "apparent_case": "She moved a scorched register and concealed the archive incident.",
+      "actual_role": "Witness and accomplice to the cover-up after the fire, not the killer.",
+      "red_herring": "Her polished account of the festival makes her seem like the person controlling the official story."
+    },
+    {
+      "npc_id": "NPC_REN",
+      "suspicion_level_initial": 3,
+      "apparent_case": "He altered the database and has technical access to the cursed repository.",
+      "actual_role": "He falsified Aoi's status under pressure, but did not cause the fire or know she was dead.",
+      "red_herring": "The visible Git corruption resembles his past tampering, encouraging the player to blame him for everything."
+    },
+    {
+      "npc_id": "NPC_HARU",
+      "suspicion_level_initial": 2,
+      "apparent_case": "He removed the bell clapper and hid it.",
+      "actual_role": "He followed Aoi's request to prepare a memorial signal and unknowingly preserved a key ritual object.",
+      "red_herring": "His secretive behavior and the missing bell part make him look like he performed a ritual himself."
+    },
+    {
+      "npc_id": "NPC_SAE",
+      "suspicion_level_initial": 2,
+      "apparent_case": "She kept a page from the register and concealed evidence.",
+      "actual_role": "She preserved the only surviving paper proof of Aoi's name but remained silent out of fear.",
+      "red_herring": "Her possession of the page makes it appear that she stole or fabricated the evidence."
+    }
+  ],
+  "clues": [
+    {
+      "id": "CLUE_01",
+      "title": "The Festival Date",
+      "source_id": "DOC_01",
+      "source_type": "newspaper_clipping",
+      "surface_text": "The school newspaper announces the Lantern Festival for September 21.",
+      "truth": "The festival was actually scheduled for September 21; September 18 was the date the announcement was printed.",
+      "supports": [
+        "The public timeline is unreliable."
+      ],
+      "contradicts": [
+        "DOC_03"
+      ],
+      "unlock_rule": {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_01"
+        ]
+      },
+      "npc_links": [
+        "NPC_MIZUKI"
+      ],
+      "importance": "medium"
+    },
+    {
+      "id": "CLUE_02",
+      "title": "The Impossible Transfer",
+      "source_id": "DOC_02",
+      "source_type": "student_database_export",
+      "surface_text": "Aoi Kisaragi transferred out on September 18.",
+      "truth": "The entry was forged after the archive fire. The transfer date predates the actual festival and was chosen to make Aoi disappear before the incident.",
+      "supports": [
+        "Aoi's official departure is false.",
+        "Ren had access to the record."
+      ],
+      "contradicts": [
+        "DOC_04",
+        "DOC_05"
+      ],
+      "unlock_rule": {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_02"
+        ]
+      },
+      "npc_links": [
+        "NPC_REN"
+      ],
+      "importance": "high"
+    },
+    {
+      "id": "CLUE_03",
+      "title": "The Missing Clapper",
+      "source_id": "DOC_03",
+      "source_type": "equipment_log",
+      "surface_text": "The old bell's clapper was signed out on September 20, one day before the festival.",
+      "truth": "Haru removed it at Aoi's request so it could be used to call witnesses to a memorial.",
+      "supports": [
+        "A memorial was planned before the fire.",
+        "Haru hid an object without knowing the full truth."
+      ],
+      "contradicts": [],
+      "unlock_rule": {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_03"
+        ]
+      },
+      "npc_links": [
+        "NPC_HARU"
+      ],
+      "importance": "medium"
+    },
+    {
+      "id": "CLUE_04",
+      "title": "Smoke in the Council Room",
+      "source_id": "NPC_MIZUKI",
+      "source_type": "npc_statement",
+      "surface_text": "Mizuki remembers carrying a scorched register away from the archive annex after smelling smoke.",
+      "truth": "The archive annex fire happened on September 21. Mizuki helped move evidence but was told Aoi had escaped.",
+      "supports": [
+        "A fire occurred in the archive annex.",
+        "The paper register survived in damaged form."
+      ],
+      "contradicts": [
+        "DOC_02"
+      ],
+      "unlock_rule": {
+        "action": "talk_to_npc",
+        "npc_id": "NPC_MIZUKI",
+        "required_topic": "archive smoke"
+      },
+      "npc_links": [
+        "NPC_MIZUKI"
+      ],
+      "importance": "high"
+    },
+    {
+      "id": "CLUE_05",
+      "title": "The Page Inside the Program",
+      "source_id": "DOC_05",
+      "source_type": "paper_register_fragment",
+      "surface_text": "A preserved paper page lists Aoi Kisaragi as an enrolled student after the supposed transfer date.",
+      "truth": "The paper register is authentic. Sae hid a copy because it contradicted the digital record.",
+      "supports": [
+        "Aoi did not transfer on September 18.",
+        "The digital archive was altered."
+      ],
+      "contradicts": [
+        "DOC_02"
+      ],
+      "unlock_rule": {
+        "action": "talk_to_npc",
+        "npc_id": "NPC_SAE",
+        "required_topic": "paper page"
+      },
+      "npc_links": [
+        "NPC_SAE"
+      ],
+      "importance": "high"
+    },
+    {
+      "id": "CLUE_06",
+      "title": "The Lantern That Never Floated",
+      "source_id": "DOC_06",
+      "source_type": "festival_inventory",
+      "surface_text": "The festival inventory says every memorial lantern was released into the river.",
+      "truth": "This line was added later. Aoi's lantern was never released because the memorial was abandoned after the fire.",
+      "supports": [
+        "The memorial was interrupted.",
+        "The official account was altered after the incident."
+      ],
+      "contradicts": [
+        "DOC_05",
+        "DOC_08"
+      ],
+      "unlock_rule": {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_06"
+        ]
+      },
+      "npc_links": [
+        "NPC_SAE"
+      ],
+      "importance": "high"
+    },
+    {
+      "id": "CLUE_07",
+      "title": "The Commit After the Fire",
+      "source_id": "DOC_07",
+      "source_type": "git_audit_log",
+      "surface_text": "A database commit marked Aoi as transferred was created after the archive annex fire, though its displayed timestamp is earlier.",
+      "truth": "The timestamp was rewritten to make the record look legitimate. Ren performed the edit under pressure; the cursed repository later began mutating commit messages on its own.",
+      "supports": [
+        "The archive history was manipulated.",
+        "The displayed commit timestamp cannot be trusted."
+      ],
+      "contradicts": [
+        "DOC_02"
+      ],
+      "unlock_rule": {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_07"
+        ]
+      },
+      "npc_links": [
+        "NPC_REN"
+      ],
+      "importance": "high"
+    },
+    {
+      "id": "CLUE_08",
+      "title": "A Name Beneath the Soot",
+      "source_id": "DOC_08",
+      "source_type": "charred_register",
+      "surface_text": "Beneath a layer of soot, the surviving register fragment contains the name 'Aoi Kisaragi' and a note: 'Light one for the name we failed to speak.'",
+      "truth": "Aoi wrote the note before the fire. It refers to the memorial for the erased student and establishes the emotional meaning of the lantern offering.",
+      "supports": [
+        "Aoi tried to restore a forgotten name.",
+        "The lantern is tied to remembrance rather than sacrifice."
+      ],
+      "contradicts": [
+        "DOC_06"
+      ],
+      "unlock_rule": {
+        "action": "cross_check",
+        "document_ids": [
+          "DOC_05",
+          "DOC_06"
+        ]
+      },
+      "npc_links": [
+        "NPC_HARU",
+        "NPC_SAE"
+      ],
+      "importance": "critical"
+    }
+  ],
+  "documents": [
+    {
+      "id": "DOC_01",
+      "title": "Lantern Festival Announcement",
+      "type": "newspaper_clipping",
+      "date": "2019-09-18",
+      "author": "Hanamori Student Press",
+      "reliability": "high_for_publication_date",
+      "forged": false,
+      "text": "The Lantern Festival will take place on September 21. Printed on September 18. A later handwritten note in the margin reads: 'Why does everyone remember the eighteenth?'",
+      "clue_ids": [
+        "CLUE_01"
+      ]
+    },
+    {
+      "id": "DOC_02",
+      "title": "Student Status Export",
+      "type": "student_database_export",
+      "date": "2019-09-18",
+      "author": "School archive terminal",
+      "reliability": "low",
+      "forged": true,
+      "text": "Aoi Kisaragi — status: transferred. Effective date: September 18. The record contains a timestamp mismatch and an unexplained administrator override.",
+      "clue_ids": [
+        "CLUE_02"
+      ]
+    },
+    {
+      "id": "DOC_03",
+      "title": "Equipment Checkout Log",
+      "type": "equipment_log",
+      "date": "2019-09-20",
+      "author": "Facilities office",
+      "reliability": "moderate",
+      "forged": false,
+      "text": "One bell clapper checked out by Haru Nishimura. Return field blank. A note says: 'For the procession, as requested.'",
+      "clue_ids": [
+        "CLUE_03"
+      ]
+    },
+    {
+      "id": "DOC_04",
+      "title": "Archive Annex Incident Note",
+      "type": "incident_note",
+      "date": "2019-09-22",
+      "author": "Unsigned staff memo",
+      "reliability": "low",
+      "forged": false,
+      "text": "A small electrical incident occurred in the archive annex. No student injuries are listed. The phrase 'all personnel accounted for' has been written over an erased line.",
+      "clue_ids": [
+        "CLUE_04"
+      ]
+    },
+    {
+      "id": "DOC_05",
+      "title": "Enrollment Register Fragment",
+      "type": "paper_register_fragment",
+      "date": "2019-09-21",
+      "author": "Original paper register",
+      "reliability": "high",
+      "forged": false,
+      "text": "The surviving page lists Aoi Kisaragi as enrolled. The page was folded inside a festival program and bears soot along one edge.",
+      "clue_ids": [
+        "CLUE_05"
+      ]
+    },
+    {
+      "id": "DOC_06",
+      "title": "Festival Inventory Summary",
+      "type": "festival_inventory",
+      "date": "2019-09-23",
+      "author": "Festival committee",
+      "reliability": "low",
+      "forged": true,
+      "text": "All memorial lanterns were released into the river on the night of the festival. A later-added line states that every planned memorial was completed without interruption.",
+      "clue_ids": [
+        "CLUE_06"
+      ]
+    },
+    {
+      "id": "DOC_07",
+      "title": "Archive Git Audit",
+      "type": "git_audit_log",
+      "date": "2019-09-22",
+      "author": "Archive terminal",
+      "reliability": "moderate",
+      "forged": false,
+      "text": "The student-status commit is displayed as September 18, but its parent commit was created on September 22. The commit message changes each time the file is opened.",
+      "clue_ids": [
+        "CLUE_07"
+      ]
+    },
+    {
+      "id": "DOC_08",
+      "title": "Charred Register Note",
+      "type": "charred_register",
+      "date": "2019-09-21",
+      "author": "Aoi Kisaragi",
+      "reliability": "high",
+      "forged": false,
+      "text": "A soot-marked fragment reads: 'Light one for the name we failed to speak.' The bottom edge contains Aoi Kisaragi's signature.",
+      "clue_ids": [
+        "CLUE_08"
+      ]
+    }
+  ],
+  "clue_unlock_rules": [
+    {
+      "action": "search_archive",
+      "document_ids": [
+        "DOC_01"
+      ],
+      "unlock": [
+        "CLUE_01"
+      ]
+    },
+    {
+      "action": "search_archive",
+      "document_ids": [
+        "DOC_02"
+      ],
+      "unlock": [
+        "CLUE_02"
+      ]
+    },
+    {
+      "action": "search_archive",
+      "document_ids": [
+        "DOC_03"
+      ],
+      "unlock": [
+        "CLUE_03"
+      ]
+    },
+    {
+      "action": "talk_to_npc",
+      "npc_id": "NPC_MIZUKI",
+      "topic": "archive smoke",
+      "unlock": [
+        "CLUE_04"
+      ]
+    },
+    {
+      "action": "talk_to_npc",
+      "npc_id": "NPC_SAE",
+      "topic": "paper page",
+      "unlock": [
+        "CLUE_05"
+      ]
+    },
+    {
+      "action": "search_archive",
+      "document_ids": [
+        "DOC_06"
+      ],
+      "unlock": [
+        "CLUE_06"
+      ]
+    },
+    {
+      "action": "search_archive",
+      "document_ids": [
+        "DOC_07"
+      ],
+      "unlock": [
+        "CLUE_07"
+      ]
+    },
+    {
+      "action": "cross_check",
+      "document_ids": [
+        "DOC_05",
+        "DOC_06"
+      ],
+      "unlock": [
+        "CLUE_08"
+      ]
+    }
+  ],
+  "story_turns": [
+    {
+      "id": "TURN_01",
+      "name": "The Seventh Voice",
+      "trigger": "Opening scene",
+      "reveal": "The PA system speaks six names, then a seventh name is swallowed by static.",
+      "player_effect": "Introduces the curse and the archive terminal."
+    },
+    {
+      "id": "TURN_02",
+      "name": "The Convenient Transfer",
+      "trigger": "Player discovers CLUE_02 or CLUE_07",
+      "reveal": "Aoi's transfer record appears to prove she left before the festival, but its timestamp is inconsistent.",
+      "player_effect": "Makes Ren the strongest early suspect."
+    },
+    {
+      "id": "TURN_03",
+      "name": "The Witness Who Moved the Evidence",
+      "trigger": "Player unlocks CLUE_04",
+      "reveal": "Mizuki admits moving the scorched register, but insists she believed Aoi had escaped.",
+      "player_effect": "Reframes a suspicious act as evidence of a wider cover-up."
+    },
+    {
+      "id": "TURN_04",
+      "name": "The Bell Was Never for the Dead",
+      "trigger": "Player unlocks CLUE_03 and speaks with Haru",
+      "reveal": "The missing clapper was removed to call witnesses to a memorial, not to summon a spirit.",
+      "player_effect": "Turns a horror-coded object into evidence of Aoi's original plan."
+    },
+    {
+      "id": "TURN_05",
+      "name": "The Page That Survived",
+      "trigger": "Player unlocks CLUE_05",
+      "reveal": "Sae preserved a paper record that contradicts the digital transfer entry.",
+      "player_effect": "Establishes that the archive's official history is not trustworthy."
+    },
+    {
+      "id": "TURN_06",
+      "name": "The False Memorial",
+      "trigger": "Player unlocks CLUE_06 and CLUE_08",
+      "reveal": "The official inventory says the lanterns floated downriver, but Aoi's note and the surviving evidence show her memorial never happened.",
+      "player_effect": "Links the ritual offering to remembrance rather than appeasement."
+    },
+    {
+      "id": "TURN_07",
+      "name": "The Commit That Remembers",
+      "trigger": "Corruption level reaches 50 or player inspects DOC_07 twice",
+      "reveal": "A commit message changes from 'Transfer completed' to 'You left her in the dark.'",
+      "player_effect": "The cursed repository becomes an active storytelling channel; it must not change canonical evidence."
+    },
+    {
+      "id": "TURN_08",
+      "name": "The Seventh Name Was Always There",
+      "trigger": "Player has at least 6 clues, including CLUE_02, CLUE_05, and CLUE_08",
+      "reveal": "The Seventh Name is Aoi Kisaragi, the student whose death was erased. The curse repeats because the school never acknowledged it.",
+      "player_effect": "Makes the final ritual logically inferable."
+    }
+  ],
+  "ending": {
+    "correct": {
+      "title": "A Light for Aoi",
+      "scene": "The player speaks Aoi Kisaragi's name and lights the paper lantern. For the first time, the PA system completes the seventh name without static. The altered commit history stops changing. A faint bell rings from the empty courtyard, and the archive restores the original enrollment record.",
+      "result": "Curse broken; repository restored to its seed state; persistent notebook retained."
+    },
+    "incorrect": {
+      "title": "The Name Rewritten",
+      "scene": "The chosen name appears on the archive terminal, then blurs into a blank field. The PA system announces another death. A new commit appears: 'No one remembers choosing.'",
+      "result": "Loop lost; corruption increases; temporary state resets; discovered clues persist."
+    },
+    "ap_zero": {
+      "title": "The Calling",
+      "scene": "The final bell rings though its clapper is missing. Every screen in the school displays a blank student record. The player hears footsteps approaching from the sealed archive annex.",
+      "result": "Trigger the loop-loss path unless the ritual or true ending has already resolved."
+    }
+  },
+  "llm_context_policy": {
+    "router": {
+      "may_receive": [
+        "allowed_action_names",
+        "current_phase",
+        "player_request",
+        "valid_target_ids"
+      ],
+      "must_not_receive": [
+        "truth",
+        "ritual_solution",
+        "unlocked_future_clues"
+      ]
+    },
+    "npc_dialogue": {
+      "may_receive": [
+        "selected_npc_persona",
+        "selected_npc_allowed_facts",
+        "facts_already_revealed_to_player",
+        "relevant_retrieved_evidence",
+        "recent_dialogue",
+        "player_question"
+      ],
+      "must_not_receive": [
+        "full_truth_object",
+        "other_npcs_private_secrets",
+        "ritual_solution_unless_the_npc_legitimately_knows_it"
+      ]
+    },
+    "narrator": {
+      "may_receive": [
+        "current_game_event",
+        "evidence_text",
+        "unlocked_clue_summaries",
+        "location",
+        "tone"
+      ],
+      "must_not_receive": [
+        "full_truth_object",
+        "unearned_clues",
+        "hidden_solution"
+      ]
+    },
+    "output_constraints": [
+      "Narrative output should be concise, normally 30-100 words.",
+      "NPC dialogue must not assert facts outside that NPC's allowed knowledge.",
+      "LLM output never directly changes AP, clues_found, corruption_level, phase, or ritual verdict.",
+      "Validate structured outputs; retry once or fall back to deterministic text if invalid."
+    ]
+  },
+  "cursed_repository": {
+    "safety_boundary": "Only operate on the game-generated repository at world/cursed_repo and its local bare origin at world/cursed_repo_origin.",
+    "initial_corruption_level": 0,
+    "corruption_events": [
+      {
+        "event": "wrong_ritual",
+        "increase": 25,
+        "effect": "Rewrite a fake commit message and add a fictional warning to the UI."
+      },
+      {
+        "event": "ap_zero",
+        "increase": 20,
+        "effect": "Create DEAD.md in the generated repository and push only to the local bare origin."
+      },
+      {
+        "event": "wrong_or_costly_move",
+        "increase": 5,
+        "effect": "Apply one bounded cosmetic corruption operation, subject to rate limits."
+      }
+    ],
+    "never_do": [
+      "Never accept arbitrary filesystem paths from player or model input.",
+      "Never use a real remote URL or GitHub token.",
+      "Never run destructive Git operations outside the generated game repository.",
+      "Never let repository corruption modify truth.json or the canonical clue mapping."
+    ]
+  },
+  "engine_config": {
+    "description": "Deterministic engine configuration derived from the world bible. The engine must treat this section as configuration, not as player-facing lore.",
+    "action_type_mapping": {
+      "inspect_location": "inspect_location",
+      "question_npc": "talk_to_npc",
+      "search_doc": "search_archive",
+      "cross_check": "cross_check",
+      "perform_ritual": "perform_ritual",
+      "view_notebook": "view_notebook"
+    },
+    "action_costs": {
+      "inspect_location": 1,
+      "question_npc": 1,
+      "talk_to_npc": 1,
+      "search_doc": 1,
+      "search_archive": 1,
+      "cross_check": 1,
+      "perform_ritual": 1,
+      "view_notebook": 0,
+      "move_location": 1
+    },
+    "starting_state": {
+      "loop_id": 1,
+      "current_day": 1,
+      "current_location": "shrine",
+      "ap_remaining": 8,
+      "phase": "investigation",
+      "corruption_level": 0
+    },
+    "locations": [
+      {
+        "id": "shrine",
+        "name": "Old Shrine",
+        "description": "A quiet shrine on the edge of the school grounds.",
+        "interactable": true,
+        "features": [
+          "ritual_site"
+        ]
+      },
+      {
+        "id": "school",
+        "name": "Hanamori High",
+        "description": "The secluded school where the Seventh Name curse repeats.",
+        "interactable": true,
+        "features": [
+          "main_building",
+          "archive_annex"
+        ]
+      },
+      {
+        "id": "library",
+        "name": "School Library",
+        "description": "A quiet library with access to the archive terminal.",
+        "interactable": true,
+        "features": [
+          "archive_terminal",
+          "restricted_archive"
+        ]
+      },
+      {
+        "id": "cafe",
+        "name": "School Cafe",
+        "description": "A common area where students gather.",
+        "interactable": true,
+        "features": []
+      },
+      {
+        "id": "equipment_shed",
+        "name": "Equipment Shed",
+        "description": "The storage shed associated with the missing bell clapper.",
+        "interactable": true,
+        "features": [
+          "bell_clapper_lead"
+        ]
+      },
+      {
+        "id": "computer_lab",
+        "name": "Computer Lab",
+        "description": "The computer club's workspace and a lead on the altered archive history.",
+        "interactable": true,
+        "features": [
+          "archive_history_lead"
+        ]
+      },
+      {
+        "id": "student_council_room",
+        "name": "Student Council Room",
+        "description": "The room where a scorched register was reportedly moved after the fire.",
+        "interactable": true,
+        "features": [
+          "scorched_register_lead"
+        ]
+      }
+    ],
+    "npc_locations": [
+      {
+        "npc_id": "NPC_MIZUKI",
+        "location_id": "student_council_room"
+      },
+      {
+        "npc_id": "NPC_REN",
+        "location_id": "computer_lab"
+      },
+      {
+        "npc_id": "NPC_HARU",
+        "location_id": "equipment_shed"
+      },
+      {
+        "npc_id": "NPC_SAE",
+        "location_id": "library"
+      },
+      {
+        "npc_id": "NPC_TAKADA",
+        "location_id": "school"
+      }
+    ],
+    "archive_access": {
+      "location_id": "library",
+      "requires_password": true,
+      "password_value": null,
+      "password_status": "UNSET_NOT_SPECIFIED_IN_SOURCE_BIBLE",
+      "password_must_not_be_guessed_by_llm": true,
+      "access_flag_name": "library_password_found",
+      "implementation_note": "The uploaded bible does not specify the actual password or its canonical discovery rule. Keep password_value null until the author chooses it. The engine should gate archive queries on the authoritative access flag, not on an LLM guess."
+    },
+    "prerequisites": {
+      "search_doc": [
+        {
+          "type": "location",
+          "field": "current_location",
+          "equals": "library",
+          "error": "The archive terminal can only be searched from the library."
+        },
+        {
+          "type": "state_flag",
+          "field": "library_password_found",
+          "equals": true,
+          "error": "The archive terminal is locked. Find the library password first."
+        }
+      ],
+      "perform_ritual": [
+        {
+          "type": "input",
+          "field": "student_id",
+          "required": true
+        },
+        {
+          "type": "input",
+          "field": "offering_id",
+          "required": true
+        }
+      ]
+    },
+    "document_clue_map": {
+      "DOC_01": [
+        "CLUE_01"
+      ],
+      "DOC_02": [
+        "CLUE_02"
+      ],
+      "DOC_03": [
+        "CLUE_03"
+      ],
+      "DOC_04": [
+        "CLUE_04"
+      ],
+      "DOC_05": [
+        "CLUE_05"
+      ],
+      "DOC_06": [
+        "CLUE_06"
+      ],
+      "DOC_07": [
+        "CLUE_07"
+      ],
+      "DOC_08": [
+        "CLUE_08"
+      ]
+    },
+    "npc_clue_map": {
+      "NPC_MIZUKI": [
+        "CLUE_04"
+      ],
+      "NPC_SAE": [
+        "CLUE_05"
+      ]
+    },
+    "clue_unlock_rules": [
+      {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_01"
+        ],
+        "unlock": [
+          "CLUE_01"
+        ]
+      },
+      {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_02"
+        ],
+        "unlock": [
+          "CLUE_02"
+        ]
+      },
+      {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_03"
+        ],
+        "unlock": [
+          "CLUE_03"
+        ]
+      },
+      {
+        "action": "talk_to_npc",
+        "npc_id": "NPC_MIZUKI",
+        "topic": "archive smoke",
+        "unlock": [
+          "CLUE_04"
+        ]
+      },
+      {
+        "action": "talk_to_npc",
+        "npc_id": "NPC_SAE",
+        "topic": "paper page",
+        "unlock": [
+          "CLUE_05"
+        ]
+      },
+      {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_06"
+        ],
+        "unlock": [
+          "CLUE_06"
+        ]
+      },
+      {
+        "action": "search_archive",
+        "document_ids": [
+          "DOC_07"
+        ],
+        "unlock": [
+          "CLUE_07"
+        ]
+      },
+      {
+        "action": "cross_check",
+        "document_ids": [
+          "DOC_05",
+          "DOC_06"
+        ],
+        "unlock": [
+          "CLUE_08"
+        ]
+      }
+    ],
+    "story_turn_triggers": [
+      {
+        "id": "TURN_01",
+        "trigger": "Opening scene"
+      },
+      {
+        "id": "TURN_02",
+        "trigger": "Player discovers CLUE_02 or CLUE_07"
+      },
+      {
+        "id": "TURN_03",
+        "trigger": "Player unlocks CLUE_04"
+      },
+      {
+        "id": "TURN_04",
+        "trigger": "Player unlocks CLUE_03 and speaks with Haru"
+      },
+      {
+        "id": "TURN_05",
+        "trigger": "Player unlocks CLUE_05"
+      },
+      {
+        "id": "TURN_06",
+        "trigger": "Player unlocks CLUE_06 and CLUE_08"
+      },
+      {
+        "id": "TURN_07",
+        "trigger": "Corruption level reaches 50 or player inspects DOC_07 twice"
+      },
+      {
+        "id": "TURN_08",
+        "trigger": "Player has at least 6 clues, including CLUE_02, CLUE_05, and CLUE_08"
+      }
+    ],
+    "ritual": {
+      "student_id_field": "student_id",
+      "offering_id_field": "offering_id",
+      "solution_ref": "truth.ritual_solution",
+      "verdict_must_be_deterministic": true,
+      "available_during_investigation": true
+    },
+    "loop": {
+      "starting_action_points": 8,
+      "when_ap_reaches_zero": "ap_zero",
+      "wrong_ritual_corruption_increase": 25,
+      "ap_zero_corruption_increase": 20,
+      "persistent_across_loops": [
+        "clues_found",
+        "notebook_entries",
+        "loop_number",
+        "player_recorded_theories"
+      ],
+      "reset_each_loop": [
+        "action_points",
+        "current_loop_dialogue",
+        "npc_temporary_reveals",
+        "current_phase"
+      ]
+    },
+    "npc_dialogue_safety": {
+      "only_pass_selected_npc_knowledge": true,
+      "allowed_fact_source": "npcs[].knows",
+      "private_secret_source": "npcs[].secret",
+      "do_not_send_full_truth_to_npc": true,
+      "do_not_send_other_npcs_secrets": true
+    },
+    "authoring_todos": [
+      {
+        "field": "archive_access.password_value",
+        "reason": "No actual library password appears in the uploaded bible.",
+        "required_before": "Enforcing a literal password entry instead of a discovered-state flag."
+      },
+      {
+        "field": "NPC_TAKADA",
+        "reason": "The source bible mentions four suspects but does not define Principal Takada's knowledge, dialogue, or clue unlocks.",
+        "required_before": "Writing a detailed Takada dialogue handler."
+      },
+      {
+        "field": "locations",
+        "reason": "Location descriptions and NPC placement are engine-facing defaults based on existing IDs and the prior project context; adjust them to match the intended map."
+      }
+    ]
+  }
+}
