@@ -167,12 +167,12 @@ if __name__ == "__main__":
 
     print("New game state initialized:")
     print(state.model_dump_json(indent=2))
-
+    action: ActionRequest = {"action_type": "move_location", "location_id": "school"}
     state, result = engine.execute_action(
         state,
-        MoveLocationAction(action_type="move_location", location_id="school"),
+        action,
     )
-    
+
     print("\nAfter moving to school:")
     print(state.model_dump_json(indent=2))
     print("Action result:")

@@ -1,7 +1,8 @@
 from typing import Literal
 
+from dotenv import load_dotenv
+from langchain_core.output_parsers import StrOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_ollama import ChatOllama
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
@@ -11,6 +12,8 @@ from engine.models import ActionRequest, ActionResult, GameState
 from game.engine_main import ACTION_ADAPTER, WORLD_BIBLE_PATH, GameEngine
 from game.mcp_docs_client import search_docs_sync
 from game.world_loader import load_world
+
+load_dotenv()  # Load environment variables from .env file
 
 
 class ActionPlan(BaseModel):
@@ -45,8 +48,8 @@ class OkuribiState(TypedDict, total=False):
     user_query: str
     game_state: GameState
     action_plan: dict
-    action: dict
-    action_result: dict
+    action: ActionRequest
+    action_result: ActionResult
     response: str
     needs_clarification: bool
 
@@ -76,23 +79,17 @@ def build_action(plan: ActionPlan) -> ActionRequest:
     return ACTION_ADAPTER.validate_python(payload)
 
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3.8-flash",
-    temperature=0,
-)
+llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
 
 
 def build_workflow(engine: GameEngine, model_name: str):
     planner = llm.with_structured_output(ActionPlan)
 
-    narrator = ChatGoogleGenerativeAI(
-        model="gemini-3.8-flash",
-        temperature=0.3,
-    )
+    narrator = ChatGoogleGenerativeAI(model=model_name)
 
     def plan_action(state: OkuribiState) -> dict:
         game = state["game_state"]
-
+        # print(f"Planning action for game state: {game.model_dump_json(indent=2)}")
         prompt = f"""
 You are the action interpreter for the game Okuribi.
 
@@ -123,7 +120,7 @@ Player request:
 {state["user_query"]}
 """
         plan = planner.invoke(prompt)
-
+        # print(f"Planner output: {plan.model_dump_json(indent=2)}")
         if plan.needs_clarification or plan.action_type is None:
             return {
                 "action_plan": plan.model_dump(),
@@ -137,7 +134,7 @@ Player request:
 
         return {
             "action_plan": plan.model_dump(),
-            "action": action.model_dump(),
+            "action": action,
             "needs_clarification": False,
         }
 
@@ -151,7 +148,7 @@ Player request:
 
         return {
             "game_state": next_game,
-            "action_result": result.model_dump(),
+            "action_result": result,
         }
 
     def route_after_planning(state: OkuribiState) -> str:
@@ -177,7 +174,7 @@ Current location: {game.current_location}
 Discovered clues: {sorted(game.discovered_clues)}
 
 Authoritative action result:
-{result}
+{result.model_dump_json(indent=2)}
 
 Player's original request:
 {state["user_query"]}
@@ -185,9 +182,12 @@ Player's original request:
 Narrate the result in an atmospheric, concise way.
 If the action failed, explain the failure honestly.
 """
-        response = narrator.invoke(prompt)
 
-        return {"response": response.content}
+        parser = StrOutputParser()
+        chain = narrator | parser
+
+        response = chain.invoke(prompt)
+        return {"response": response}
 
     graph = StateGraph(OkuribiState)
 
@@ -213,14 +213,18 @@ if __name__ == "__main__":
     engine = GameEngine(world, search_docs_sync)
 
     state = engine.new_game()
+    print("New game state initialized:")
+    print(state.model_dump_json(indent=2))
 
-    workflow = build_workflow(engine, model_name="gemini-3.8-flash")
-    
+    workflow = build_workflow(engine, model_name="gemini-3.6-flash")
+
     while True:
         user_query = input("\nWhat would you like to do? ")
-        state_dict = {"user_query": user_query, "game_state": state.model_dump()}
+        state_dict = {"user_query": user_query, "game_state": state}
 
-        state_dict = workflow.run(state_dict)
+        state_dict = workflow.invoke(
+            state_dict, config={"configurable": {"thread_id": state.loop_id}}
+        )
 
         state = GameState.model_validate(state_dict["game_state"])
         response = state_dict.get("response", "")
