@@ -31,8 +31,12 @@ from game.execution import (
     execute_talk_npc,
 )
 from game.mcp_docs_client import search_docs_sync
+from game.world_loader import load_world
 
 ACTION_ADAPTER = TypeAdapter(ActionRequest)
+WORLD_BIBLE_PATH = (
+    r"D:\HarshitPC\Projects\okuribi\world\okuribi_world_bible_engine_ready.json"
+)
 
 
 class GameEngine:
@@ -42,6 +46,7 @@ class GameEngine:
         archive_search: ArchiveSearch | None = None,
     ):
         self.world = world
+        self.archive_search = archive_search or (lambda query: [])
 
     def execute_action(
         self,
@@ -123,7 +128,7 @@ class GameEngine:
         if isinstance(action, MoveLocationAction):
             return execute_move_location(state, action, self.world)
 
-        raise ValueError(f"No handler for {action.action_type}")
+        raise TypeError(f"No handler for {action.action_type}")
 
     def new_game(self) -> GameState:
         """Create a fresh state using the World Bible's starting settings."""
@@ -153,3 +158,22 @@ class GameEngine:
 
         # Keep discovered clues and notebook evidence across loops.
         return next_state
+
+
+if __name__ == "__main__":
+    world = load_world(WORLD_BIBLE_PATH)
+    engine = GameEngine(world, search_docs_sync)
+    state = engine.new_game()
+
+    print("New game state initialized:")
+    print(state.model_dump_json(indent=2))
+
+    state, result = engine.execute_action(
+        state,
+        MoveLocationAction(action_type="move_location", location_id="school"),
+    )
+    
+    print("\nAfter moving to school:")
+    print(state.model_dump_json(indent=2))
+    print("Action result:")
+    print(result.model_dump_json(indent=2))
