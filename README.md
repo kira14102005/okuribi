@@ -1,2 +1,2 @@
-## Current Architecture
-![current_arch](./assets/mermaid-diagram-3.png)
+## Current Okuribi Workflow & Architecture
+![current_arch](./assets/mermaid-diagram-1.png)
