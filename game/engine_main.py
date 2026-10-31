@@ -97,7 +97,7 @@ class GameEngine:
         elif isinstance(action, CrossCheckAction):
             validate_cross_check_action(state, action, self.world)
         else:
-            raise ValueError(f"Unsupported action type: {action.action_type}")
+            raise TypeError(f"Unsupported action type: {action.action_type}")
 
     def _execute(self, state, action) -> ActionResult:
         if isinstance(action, InspectLocationAction):
