@@ -19,6 +19,16 @@ def action_cost(action, world: dict) -> int:
     return costs[action_type]
 
 
+def validate_move_location_action(state, action, world):
+    locations = world["engine_config"]["locations_by_id"]
+
+    if action.location_id not in locations:
+        raise ValueError(f"Unknown location: {action.location_id}")
+
+    if action.location_id == state.current_location:
+        raise ValueError("You are already at this location.")
+
+
 def validate_action(state, action, world: dict) -> None:
     """Validate shared preconditions before dispatching an action."""
     if state.game_over or state.phase in {"ending", "game_over"}:
