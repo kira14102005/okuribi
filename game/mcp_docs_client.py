@@ -1,7 +1,7 @@
 import asyncio
+import json
 
-from fastmcp import Client
-
+from langchain.mcp import MCPAdapter
 from rag.mcp.docs_mcp_main import mcp
 
 # ponytail: in-process client imports the server directly; switch to
@@ -9,17 +9,26 @@ from rag.mcp.docs_mcp_main import mcp
 # and the server must run as separate processes.
 
 
+def _format_doc(doc):
+    metadata = doc.get("metadata", {})
+    content = doc.get("page_content", "")
+    mod_doc = {**metadata, "content": content}
+    return mod_doc
+
+
 async def main():
-    client = Client(mcp)
-    async with client:
-        tools = await client.list_tools()
+    async with MCPAdapter(mcp) as adapter:
+        tools = await adapter.list_tools()
         print(f"Available tools: {sorted(t.name for t in tools)}")
+        by_name = {t.name: t for t in tools}
         query = "When is the festival?"
         print(f"Query: {query}")
-        result = await client.call_tool("query_docs", {"query": query})
-        print(f"Result: {result.data}")
-
-    print(f"Result: {result}")
+        result = await by_name["query_docs"].ainvoke({"query": query})
+        result = result[0].get("text", [])
+        result = json.loads(result)
+        docs = [_format_doc(doc) for doc in result]
+        for doc in docs:
+            print(f"Document: {json.dumps(doc, indent=3)}")
 
 
 if __name__ == "__main__":
