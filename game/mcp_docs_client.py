@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import json
+from typing import Any
 
 from langchain.mcp import MCPAdapter
 
@@ -30,6 +31,11 @@ async def search_docs(query: str = "When is the festival?"):
         for doc in docs:
             print(f"Document: {json.dumps(doc, indent=3)}")
         return docs
+
+
+def search_docs_sync(query: str = "When is the festival?") -> list[dict[str, Any]]:
+    """Synchronous wrapper for search_docs."""
+    return asyncio.run(search_docs(query=query))
 
 
 if __name__ == "__main__":
