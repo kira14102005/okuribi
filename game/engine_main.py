@@ -6,6 +6,7 @@ from engine.actions import (
     validate_action_search_doc,
     validate_cross_check_action,
     validate_inspect_location_action,
+    validate_move_location_action,
     validate_npc_talk_action,
     validate_ritual_action,
 )
@@ -15,6 +16,7 @@ from engine.models import (
     CrossCheckAction,
     GameState,
     InspectLocationAction,
+    MoveLocationAction,
     PerformRitualAction,
     SearchDocAction,
     TalkNPCAction,
@@ -23,10 +25,12 @@ from game.execution import (
     ArchiveSearch,
     execute_cross_check,
     execute_inspect_location,
+    execute_move_location,
     execute_ritual,
     execute_search_doc,
     execute_talk_npc,
 )
+from game.mcp_docs_client import search_docs_sync
 
 ACTION_ADAPTER = TypeAdapter(ActionRequest)
 
@@ -38,7 +42,6 @@ class GameEngine:
         archive_search: ArchiveSearch | None = None,
     ):
         self.world = world
-        self.archive_search = archive_search
 
     def execute_action(
         self,
@@ -96,6 +99,8 @@ class GameEngine:
             validate_ritual_action(state, action, self.world)
         elif isinstance(action, CrossCheckAction):
             validate_cross_check_action(state, action, self.world)
+        elif isinstance(action, MoveLocationAction):
+            validate_move_location_action(state, action, self.world)
         else:
             raise TypeError(f"Unsupported action type: {action.action_type}")
 
@@ -114,6 +119,9 @@ class GameEngine:
 
         if isinstance(action, CrossCheckAction):
             return execute_cross_check(state, action, self.world)
+
+        if isinstance(action, MoveLocationAction):
+            return execute_move_location(state, action, self.world)
 
         raise ValueError(f"No handler for {action.action_type}")
 

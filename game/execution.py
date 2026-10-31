@@ -15,6 +15,21 @@ from engine.models import (
 ArchiveSearch = Callable[[str], list[dict[str, Any]]]
 
 
+def execute_move_location(state, action, world):
+    previous_location = state.current_location
+    state.current_location = action.location_id
+
+    return ActionResult(
+        success=True,
+        action_type=action.action_type,
+        message=f"You moved to {action.location_id}.",
+        data={
+            "previous_location": previous_location,
+            "current_location": action.location_id,
+        },
+    )
+
+
 def execute_inspect_location(
     state: GameState,
     action: InspectLocationAction,
@@ -157,7 +172,6 @@ def execute_ritual(
     state.phase = "investigation"
     state.game_over = False
     state.npc_states.clear()
-    state.ritual_states.clear() if hasattr(state, "ritual_states") else None
 
     return ActionResult(
         success=False,
