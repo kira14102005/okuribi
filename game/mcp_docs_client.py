@@ -16,11 +16,12 @@ def _format_doc(doc):
     return mod_doc
 
 
-async def search_docs(query: str = "When is the festival?"):
+async def main():
     async with MCPAdapter(mcp) as adapter:
         tools = await adapter.list_tools()
         print(f"Available tools: {sorted(t.name for t in tools)}")
         by_name = {t.name: t for t in tools}
+        query = "When is the festival?"
         print(f"Query: {query}")
         result = await by_name["query_docs"].ainvoke({"query": query})
         result = result[0].get("text", [])
@@ -28,8 +29,7 @@ async def search_docs(query: str = "When is the festival?"):
         docs = [_format_doc(doc) for doc in result]
         for doc in docs:
             print(f"Document: {json.dumps(doc, indent=3)}")
-        return docs
 
 
 if __name__ == "__main__":
-    asyncio.run(search_docs())
+    asyncio.run(main())

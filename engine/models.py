@@ -1,16 +1,13 @@
-from collections import defaultdict
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field, computed_field, field_validator
+from pydantic import BaseModel, Field
 
 
 class NoteBook(BaseModel):
-    discovered_locations: set[str] = Field(
-        default_factory=set,
-        description="The set of discovered locations in the notebook.",
-    )
+    discovered_locations: set[str] = Field(default_factory=set)
     npcs_questioned: set[str] = Field(default_factory=set)
     docs_investigated: set[str] = Field(default_factory=set)
+    list_of_clues: list[str] = Field(default_factory=list)
 
 
 class NPCState(BaseModel):
@@ -18,32 +15,21 @@ class NPCState(BaseModel):
     interaction_count: int = 0
 
 
-class RitualState(BaseModel):
-    completed: bool = False
-    completed_steps: set[str] = Field(default_factory=set)
-
-
 class GameState(BaseModel):
-    loop_id: int = Field(
-        default=1, description="The current loop ID of the game state."
-    )
-    current_day: int = Field(
-        default=1, description="The current day in the game state."
-    )
-    current_location: str = Field(
-        default="shrine", description="The current location in the game state."
-    )
-    ap_remaining: int = Field(
-        default=10, ge=0, description="The remaining action points in the game state."
-    )
+    loop_id: int = 1
+    current_day: int = 1
+    current_location: str = "shrine"
+    ap_remaining: int = Field(default=8, ge=0)
 
-    discovered_clues: set[str] = Field(
-        default_factory=set,
-        description="The set of discovered clues in the game state.",
-    )
+    discovered_clues: set[str] = Field(default_factory=set)
     discovered_facts: set[str] = Field(default_factory=set)
+
+    library_password_found: bool = False
+    phase: str = "investigation"
+    corruption_level: int = Field(default=0, ge=0)
+    game_over: bool = False
+
     npc_states: dict[str, NPCState] = Field(default_factory=dict)
-    ritual_states: dict[str, RitualState] = Field(default_factory=dict)
     notebook: NoteBook = Field(default_factory=NoteBook)
 
 
@@ -65,15 +51,26 @@ class TalkNPCAction(GameAction):
 class SearchDocAction(GameAction):
     action_type: Literal["search_doc"] = "search_doc"
     document_id: str | None = None
+    query: str | None = None
 
 
 class PerformRitualAction(GameAction):
     action_type: Literal["perform_ritual"] = "perform_ritual"
-    ritual_id: str
+    student_id: str
+    offering_id: str
+
+
+class CrossCheckAction(GameAction):
+    action_type: Literal["cross_check"] = "cross_check"
+    document_ids: list[str] = Field(min_length=2)
 
 
 ActionRequest = Annotated[
-    InspectLocationAction | TalkNPCAction | SearchDocAction | PerformRitualAction,
+    InspectLocationAction
+    | TalkNPCAction
+    | SearchDocAction
+    | PerformRitualAction
+    | CrossCheckAction,
     Field(discriminator="action_type"),
 ]
 
@@ -85,32 +82,3 @@ class ActionResult(BaseModel):
     ap_spent: int = 0
     discovered_clues: list[str] = Field(default_factory=list)
     data: dict[str, Any] = Field(default_factory=dict)
-
-
-VALID_LOCATIONS = {
-    "shrine",
-    "school",
-    "library",
-    "cafe",
-    "equipment_shed",
-    "computer_lab",
-    "student_council_room",
-}
-
-
-class NPCatLocation(BaseModel):
-    npc_id: str
-    location_id: str
-
-
-class GameMap(BaseModel):
-    rules: list[NPCatLocation]
-
-    @computed_field
-    @property
-    def npc_to_locations(self) -> dict[str, str]:
-        """Automatically groups locations by npc_id, supporting multiple locations."""
-        npc_dict = defaultdict(str)
-        for rule in self.rules:
-            npc_dict[rule.npc_id] = rule.location_id
-        return dict(npc_dict)

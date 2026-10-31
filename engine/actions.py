@@ -1,66 +1,55 @@
-from engine.ap import get_ap_cost
 from engine.models import (
-    ActionRequest,
-    GameMap,
+    CrossCheckAction,
     GameState,
     InspectLocationAction,
+    PerformRitualAction,
     SearchDocAction,
     TalkNPCAction,
 )
 
 
-def validate_action(state: GameState, action: ActionRequest, world: dict) -> None:
-    """
-    Validate if the action can be performed given the current game state.
+def action_cost(action, world: dict) -> int:
+    """Return the configured AP cost for an action."""
+    costs = world["engine_config"]["action_costs"]
+    action_type = action.action_type
 
-    Args:
-        state (GameState): The current game state.
-        action (ActionRequest): The action to validate.
+    if action_type not in costs:
+        raise ValueError(f"Unknown action type: {action_type}")
 
-    Raises:
-        ValueError: If the action cannot be performed due to insufficient AP or invalid action type.
-    """
-    ap_cost = get_ap_cost(action.action_type)
-    if state.ap_remaining < ap_cost:
-        raise ValueError(
-            f"Insufficient AP to perform action '{action.action_type}'. "
-            f"Required: {ap_cost}, Available: {state.ap_remaining}"
-        )
+    return costs[action_type]
+
+
+def validate_action(state, action, world: dict) -> None:
+    """Validate shared preconditions before dispatching an action."""
+    if state.game_over or state.phase in {"ending", "game_over"}:
+        raise ValueError("The game has already ended.")
+
+    cost = action_cost(action, world)
+    if state.ap_remaining < cost:
+        raise ValueError(f"Insufficient AP: need {cost}, have {state.ap_remaining}.")
 
 
 def validate_inspect_location_action(
-    state: GameState, action: InspectLocationAction, world: dict
+    state: GameState,
+    action: InspectLocationAction,
+    world: dict,
 ) -> None:
-    """
-    Validate if the 'inspect_location' action can be performed given the current game state.
+    locations = world["engine_config"]["locations_by_id"]
 
-    Args:
-        state (GameState): The current game state.
-        action (InspectLocationAction): The action to validate.
+    if action.location_id not in locations:
+        raise ValueError(f"Unknown location: {action.location_id}")
 
-    Raises:
-        ValueError: If the action cannot be performed due to insufficient AP or invalid action type.
-    """
+    location = locations[action.location_id]
+    required_facts = location.get("required_facts", [])
 
-    if action.location_id == "school":
-        if state.current_day % 7 == 0:
-            raise ValueError(
-                "School is closed on Sundays. You cannot inspect the school on this day."
-            )
-        if "NPC_TAKADA" not in state.notebook.npcs_questioned:
-            raise ValueError(
-                "You need to question NPC_TAKADA before inspecting the school."
-            )
-
-    required_loc_facts = world["locations"][action.location_id].required_facts
-    if not all(fact in state.notebook.discovered_clues for fact in required_loc_facts):
-        missing_facts = [
-            fact
-            for fact in required_loc_facts
-            if fact not in state.notebook.discovered_clues
-        ]
+    missing = [
+        fact
+        for fact in required_facts
+        if fact not in state.discovered_facts and fact not in state.discovered_clues
+    ]
+    if missing:
         raise ValueError(
-            f"Cannot inspect location '{action.location_id}'. Missing required facts: {', '.join(missing_facts)}"
+            f"Missing required facts for {action.location_id}: " + ", ".join(missing)
         )
 
     if action.location_id in state.notebook.discovered_locations:
@@ -68,56 +57,83 @@ def validate_inspect_location_action(
 
 
 def validate_npc_talk_action(
-    state: GameState, action: TalkNPCAction, world: dict
+    state: GameState,
+    action: TalkNPCAction,
+    world: dict,
 ) -> None:
-    """
-    Validate if the 'question_npc' action can be performed given the current game state.
+    npcs = world["engine_config"]["npcs_by_id"]
+    npc_locations = world["engine_config"]["npc_location_by_id"]
 
-    Args:
-        state (GameState): The current game state.
-        action (TalkNPCAction): The action to validate.
+    if action.npc_id not in npcs:
+        raise ValueError(f"Unknown NPC: {action.npc_id}")
 
-    Raises:
-        ValueError: If the action cannot be performed due to insufficient AP or invalid action type.
-    """
-    talked_npcs = {npc.npc_id for npc in state.notebook.talked_npcs}
+    expected_location = npc_locations.get(action.npc_id)
+    if expected_location and state.current_location != expected_location:
+        raise ValueError(f"Move to '{expected_location}' to talk to {action.npc_id}.")
 
-    if action.npc_id in talked_npcs:
-        raise ValueError(f"NPC '{action.npc_id}' has already been talked to.")
+    npc_state = state.npc_states.get(action.npc_id)
 
-    if (
-        action.npc_id in npc_locations
-        and state.current_location != npc_locations[action.npc_id]
-    ):
+    # Prevent repeating the same named topic, but allow different topics.
+    if action.topic and npc_state and action.topic in npc_state.talked_topics:
         raise ValueError(
-            f"Move to location '{npc_locations[action.npc_id]}' to talk to NPC '{action.npc_id}'."
+            f"You have already discussed '{action.topic}' with {action.npc_id}."
         )
 
 
 def validate_action_search_doc(
-    state: GameState, action: SearchDocAction, world: dict
+    state: GameState,
+    action: SearchDocAction,
+    world: dict,
 ) -> None:
-    """
-    Validate if the 'search_doc' action can be performed given the current game state.
+    access = world["engine_config"]["archive_access"]
 
-    Args:
-        state (GameState): The current game state.
-        action (SearchDocAction): The action to validate.
+    if state.current_location != access["location_id"]:
+        raise ValueError(f"Move to '{access['location_id']}' to search the archive.")
 
-    Raises:
-        ValueError: If the action cannot be performed due to insufficient AP or invalid action type.
-    """
-    if state.current_location != "library":
+    if access["requires_password"] and not state.library_password_found:
         raise ValueError(
-            f"Cannot search for documents in '{state.current_location}'. Move to 'library' to perform this action."
+            "The archive terminal is locked. Find the library password first."
         )
 
+    if action.document_id:
+        docs = world["engine_config"]["documents_by_id"]
+        if action.document_id not in docs:
+            raise ValueError(f"Unknown document: {action.document_id}")
 
-npc_locations = GameMap(
-    rules=[
-        {"npc_id": "NPC_MIZUKI", "location_id": "student_council_room"},
-        {"npc_id": "NPC_SAE", "location_id": "library"},
-        {"npc_id": "NPC_REN", "location_id": "computer_lab"},
-        {"npc_id": "NPC_HARU", "location_id": "equipment_shed"},
+
+def validate_ritual_action(
+    state: GameState,
+    action: PerformRitualAction,
+    world: dict,
+) -> None:
+    if not world["game_rules"]["ritual"]["available_during_investigation"]:  # noqa: SIM102
+        if state.phase == "investigation":
+            raise ValueError("The ritual is not available yet.")
+
+    allowed_offerings = {
+        item["id"] for item in world["game_rules"]["ritual"]["offerings"]
+    }
+    if action.offering_id not in allowed_offerings:
+        raise ValueError(f"Unknown offering: {action.offering_id}")
+
+
+def validate_cross_check_action(
+    state: GameState,
+    action: CrossCheckAction,
+    world: dict,
+) -> None:
+    docs = world["engine_config"]["documents_by_id"]
+
+    unknown = [doc_id for doc_id in action.document_ids if doc_id not in docs]
+    if unknown:
+        raise ValueError(f"Unknown documents: {', '.join(unknown)}")
+
+    not_found = [
+        doc_id
+        for doc_id in action.document_ids
+        if doc_id not in state.notebook.docs_investigated
     ]
-).npc_to_locations
+    if not_found:
+        raise ValueError(
+            "Investigate these documents before cross-checking: " + ", ".join(not_found)
+        )
